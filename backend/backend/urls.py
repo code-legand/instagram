@@ -22,5 +22,7 @@ urlpatterns = [
     path('signup/', include('app.urls')), 
     path('login/', include('app.urls')),
     path('logout/', include('app.urls')),
+    path('getposts/', include('app.urls')),
+    path('recommendations/', include('app.urls')),
 
 ]
