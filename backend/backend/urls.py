@@ -22,7 +22,14 @@ urlpatterns = [
     path('signup/', include('app.urls')), 
     path('login/', include('app.urls')),
     path('logout/', include('app.urls')),
-    path('getposts/', include('app.urls')),
+    path('fetch_posts/', include('app.urls')),
+    path('store_posts/', include('app.urls')),
     path('recommendations/', include('app.urls')),
+    path('search/', include('app.urls')),
+    path('fetch_messages/', include('app.urls')),
+    path('store_message/', include('app.urls')),
+    path('fetch_status/', include('app.urls')),
+    path('store_status/', include('app.urls')),
+    path('fetch_profile/', include('app.urls')),
 
 ]

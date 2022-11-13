@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, HttpResponse
-
 from django.http import JsonResponse
 import json
 import pymongo
 import datetime
+import uuid     #for unique image name
 from django.views.decorators.csrf import csrf_exempt
 
 client = pymongo.MongoClient("mongodb+srv://user:user@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority")
@@ -18,32 +18,37 @@ def home(request):
 @csrf_exempt
 def signup(request):
     if request.method == 'POST' or request.method == 'GET':
-        data=dict()
-        data['email'] = request.POST.get('email')
-        data['fullname'] = request.POST.get('fullname')
-        data['username'] = request.POST.get('username')
-        data['password'] = request.POST.get('password')
-        
-        check1 = db.user.find_one({'email': data['email']})
-        check2 = db.user.find_one({'username': data['username']})
-        if check1:
-            data = {'status': 'error', 'message': 'Email already exists'}
-            return JsonResponse(data)
-        elif check2:
-            data = {'status': 'error', 'message': 'Username already exists'}
+        username = request.session['username']
+        if username:
+            data = {'status': 'error', 'message': 'Already logged in'}
             return JsonResponse(data)
         else:
-            data['type'] = 'public'
-            data['registeredAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.f%z")
-            data['lastLogin'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-            insert_confirm = db.user.insert_one(data)
-            if insert_confirm:
-                request.session['username'] = data['username']
-                data = {'status': 'success', 'message': 'User created successfully'}
+            data=dict()
+            data['email'] = request.POST.get('email')
+            data['fullname'] = request.POST.get('fullname')
+            data['username'] = request.POST.get('username')
+            data['password'] = request.POST.get('password')
+            check1 = db.user.find_one({'email': data['email']})
+            check2 = db.user.find_one({'username': data['username']})
+            if check1:
+                data = {'status': 'error', 'message': 'Email already exists'}
+                return JsonResponse(data)
+            elif check2:
+                data = {'status': 'error', 'message': 'Username already exists'}
                 return JsonResponse(data)
             else:
-                data = {'status': 'error', 'message': 'Something went wrong'}
-                return JsonResponse(data)
+                data['type'] = 'public'
+                data['registeredAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.f%z")
+                data['lastLogin'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                insert_confirm = db.user.insert_one(data)
+                status = db.user_status.insert_one({"userId":data['username'], "status":"", "imagePath":""})
+                if insert_confirm:
+                    request.session['username'] = data['username']
+                    data = {'status': 'success', 'message': 'User created successfully'}
+                    return JsonResponse(data)
+                else:
+                    data = {'status': 'error', 'message': 'Something went wrong'}
+                    return JsonResponse(data)
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
@@ -89,7 +94,7 @@ def logout(request):
         return JsonResponse(data)
 
 @csrf_exempt
-def get_posts(request):
+def fetch_posts(request):
     if request.method == 'POST' or request.method == 'GET':
         username = request.session.get('username', False)
         if username:
@@ -104,6 +109,32 @@ def get_posts(request):
                 data.append(post)
             # print(data)
             return JsonResponse(data, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def store_post(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        if username:
+            data=dict()
+            data['userId'] = username
+            data['caption'] = request.POST.get('caption')
+            image = request.FILES.get('image')
+            data['imagePath'] = store_image(image, 'post_images')
+            data['postedAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            data['likes'] = 0
+            insert_confirm = db.user_post.insert_one(data)
+            if insert_confirm:
+                data = {'status': 'success', 'message': 'Post created successfully'}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
             return JsonResponse(data)
@@ -136,6 +167,154 @@ def recommendations(request):
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
+
+@csrf_exempt
+def search(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        if username:
+            search_string=request.POST.get('search_string')
+            search_list=[]
+            search=db.user.find({"username":{'$regex':search_string, '$ne':username}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
+            for result in search:
+                search_list.append(result)
+            return JsonResponse(search_list, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def fetch_messages(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        targetId = request.POST.get('targetId')
+        if username:
+            messages_list=[]
+            messages=db.user_message.find({"sourceId":username, "targetId":targetId}).limit(10)
+            for message in messages:
+                messages_list.append(message)
+            return JsonResponse(messages_list, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def store_message(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        if username:
+            targetId = request.POST.get('targetId')
+            message = request.POST.get('message')
+            sentAt = datetime.datetime.now()
+            messages=db.user_message.insert_one({"sourceId":username, "targetId":targetId, "message":message, "sentAt":sentAt})
+            if messages:
+                data = {'status': 'success', 'message': 'Message sent successfully'}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+def fetch_status(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        if username:
+            status=db.user_status.find({"userId":username}, {"_id":0})
+            return JsonResponse(status, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+def store_status(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        if username:
+            image = request.FILE.get('image')
+            imagePath = store_image(image, 'post_images')
+            timeStamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagepath}})
+            if status:
+                data = {'status': 'success', 'message': 'Status updated successfully'}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def fetch_profile(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username = request.session.get('username', False)
+        if username:
+            profile=db.user.find_one({"username":username}, {"_id":0})
+            follower_count = count_followers(username)
+            following_count = count_following(username)
+            friend_count = count_friends(username)
+            posts_count = count_posts(username)
+            profile['follower_count']=follower_count
+            profile['following_count']=following_count
+            profile['friend_count']=friend_count
+            profile['posts_count']=posts_count
+            return JsonResponse(profile)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+
+
+#plugins
+def count_friends(username):
+    friends=db.user_friend.find({"sourceId":username}).count()
+    return friends
+
+def count_followers(username):
+    followers=db.user_follow.find({"targetId":username, "status":""}).count()
+    return followers
+
+def count_following(username):
+    following=db.user_follow.find({"sourceId":username, "status":""}).count()
+    return following
+
+def count_posts(username):
+    posts=db.user_post.find({"userId":username}).count()
+    return posts
+
+def store_image(image, subfolder):
+    image_extention = image.name.split('.')[-1]
+    image_name = str(uuid.uuid4()) + '.' + image_extention
+    image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
+    with open(image_path, 'wb+') as file:
+        for chunk in image.chunks():
+            file.write(chunk)
+    return image_path
+    
+
+
+
+
+
 
 
 
