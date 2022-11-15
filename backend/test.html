@@ -5,16 +5,34 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script>
+        function connect(){
+            var xhr=new XMLHttpRequest();
+            var url='http://localhost:8000';
+            xhr.open("POST", url, true)
+            xhr.onReadyStateChange=function(){
+                if(xhr.readyState===4 && xhr.status===200){
+                    var json=JSON.parse(xhr.responseText);
+                    console.log(json);
+                }
+            }
+            var username=document.getElementById("username").value;
+            var password=document.getElementById("password").value;
+            var data='{"username":username, "password":password}';
+            xhr.send(data);
+        }
+    </script>
+
 </head>
 <body>
     login
-    <form action="https://instagram-production-220c.up.railway.app/login/" method="post">
+    <!-- <form action="https://instagram-production-220c.up.railway.app/login/" method="post"> -->
         username
         <input type="text" name="username" id="username">
         <br>
         password
         <input type="password" name="password" id="password">
-        <input type="submit" value="Login">
-    </form>
+        <input type="submit" value="Login" onclick="connect();">
+    <!-- </form> -->
 </body>
 </html>
