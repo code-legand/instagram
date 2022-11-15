@@ -19,37 +19,33 @@ def home(request):
 @csrf_exempt
 def signup(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session['username']
-        if username:
-            data = {'status': 'error', 'message': 'Already logged in'}
+        data=dict()
+        data['email'] = request.POST.get('email')
+        data['fullname'] = request.POST.get('fullname')
+        data['username'] = request.POST.get('username')
+        data['password'] = request.POST.get('password')
+        check1 = db.user.find_one({'email': data['email']})
+        check2 = db.user.find_one({'username': data['username']})
+        if check1:
+            data = {'status': 'error', 'message': 'Email already exists'}
+            return JsonResponse(data)
+        elif check2:
+            data = {'status': 'error', 'message': 'Username already exists'}
             return JsonResponse(data)
         else:
-            data=dict()
-            data['email'] = request.POST.get('email')
-            data['fullname'] = request.POST.get('fullname')
-            data['username'] = request.POST.get('username')
-            data['password'] = request.POST.get('password')
-            check1 = db.user.find_one({'email': data['email']})
-            check2 = db.user.find_one({'username': data['username']})
-            if check1:
-                data = {'status': 'error', 'message': 'Email already exists'}
-                return JsonResponse(data)
-            elif check2:
-                data = {'status': 'error', 'message': 'Username already exists'}
+            data['type'] = 'public'
+            data['registeredAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            data['lastLogin'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            insert_confirm = db.user.insert_one(data)
+            status = db.user_status.insert_one({"userId":data['username'], "status":"", "imagePath":""})
+            if insert_confirm:
+                # request.session['username'] = data['username']
+                db.user_logged.insert_one({"username":data['username'], "status":1})
+                data = {'status': 'success', 'message': 'User created successfully'}
                 return JsonResponse(data)
             else:
-                data['type'] = 'public'
-                data['registeredAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                data['lastLogin'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-                insert_confirm = db.user.insert_one(data)
-                status = db.user_status.insert_one({"userId":data['username'], "status":"", "imagePath":""})
-                if insert_confirm:
-                    request.session['username'] = data['username']
-                    data = {'status': 'success', 'message': 'User created successfully'}
-                    return JsonResponse(data)
-                else:
-                    data = {'status': 'error', 'message': 'Something went wrong'}
-                    return JsonResponse(data)
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
@@ -58,18 +54,20 @@ def signup(request):
 @csrf_exempt
 def login(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             data = {'status': 'error', 'message': 'Already logged in'}
             return JsonResponse(data)
         else:
-            data = {}
-            data['username'] = request.POST.get('username')
-            data['password'] = request.POST.get('password')
-            check = db.user.find_one({'username': data['username'], 'password': data['password']})
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            
+            check = db.user.find_one({'username': username, 'password': password})
             if check:
-                request.session['username'] = data['username']
-                print(request.session['username'])
+                # request.session['username'] = username
+                db.user_logged.update_one({"username":username}, {"$set":{"status":1}})
                 data = {'status': 'success', 'message': 'Login successful'}
                 return JsonResponse(data)
             else:
@@ -82,9 +80,12 @@ def login(request):
 @csrf_exempt
 def logout(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
-            request.session.flush()
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            # request.session.flush()
+            db.user_logged.update_one({"username":username}, {"$set":{"status":0}})
             data = {'status': 'success', 'message': 'Logout successful'}
             return JsonResponse(data)
         else:
@@ -97,8 +98,10 @@ def logout(request):
 @csrf_exempt
 def fetch_posts(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
             followers=db.user_follower.find({"sourceId":username}, {"_id":0, "targetId":1})
             people = {username, *friends, *followers}      #starred
@@ -120,8 +123,10 @@ def fetch_posts(request):
 @csrf_exempt
 def store_post(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             data=dict()
             data['userId'] = username
             data['caption'] = request.POST.get('caption')
@@ -146,8 +151,10 @@ def store_post(request):
 @csrf_exempt
 def recommendations(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_list=[]
             friends=db.user_friend.find({"sourceId":username}, {"_id":0, "targetId":1}).limit(10)
             for friend in friends:
@@ -172,8 +179,10 @@ def recommendations(request):
 @csrf_exempt
 def search(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             search_string=request.POST.get('search_string')
             search_list=[]
             search=db.user.find({"username":{'$regex':search_string, '$ne':username}}, {"_id":0, "username":1, "imagePath":1}).limit(10)

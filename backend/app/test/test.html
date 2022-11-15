@@ -6,33 +6,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        function connect(){
-            var xhr=new XMLHttpRequest();
-            var url='http://localhost:8000';
-            xhr.open("POST", url, true)
-            xhr.onReadyStateChange=function(){
-                if(xhr.readyState===4 && xhr.status===200){
-                    var json=JSON.parse(xhr.responseText);
-                    console.log(json);
+        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        BASE_URL = "http://localhost:8000/"
+
+
+        function sendLoginRequest(){
+            //send user name and password by post request
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "login/", true, withCredentials=true, setCookie="y1rd6rau1x44ganofvmxi1qoc4l054by");
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&password=" + password);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
                 }
             }
-            var username=document.getElementById("username").value;
-            var password=document.getElementById("password").value;
-            var data='{"username":username, "password":password}';
-            xhr.send(data);
+        }
+
+        function sendSignupRequest(){
+            //send email, fullname, user name and password by post request
+            var email = document.getElementById("email").value;
+            var fullname = document.getElementById("fullname").value;
+            var username = document.getElementById("username2").value;
+            var password = document.getElementById("password2").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "signup/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&password=" + password + "&email=" + email + "&fullname=" + fullname);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function sendLogoutRequest(){
+            //send logout request
+            var username = document.getElementById("username3").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "logout/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function getPosts(){
+            //get all posts
+            var username = document.getElementById("username4").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", BASE_URL + "fetch_posts/", true);
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
         }
     </script>
 
 </head>
 <body>
-    login
-    <!-- <form action="https://instagram-production-220c.up.railway.app/login/" method="post"> -->
-        username
-        <input type="text" name="username" id="username">
-        <br>
-        password
-        <input type="password" name="password" id="password">
-        <input type="submit" value="Login" onclick="connect();">
-    <!-- </form> -->
+    login <br>
+    username
+    <input type="text" name="username" id="username">
+    <br>
+    password
+    <input type="password" name="password" id="password">
+    <input type="submit" value="Login" onclick="sendLoginRequest();">
+
+    <br><br><br>
+
+    signup <br>
+    email
+    <input type="text" name="email" id="email">
+    <br>
+    fullname
+    <input type="text" name="fullname" id="fullname">
+    <br>
+    username
+    <input type="text" name="username" id="username2">
+    <br>
+    password
+    <input type="password" name="password" id="password2">
+    <input type="submit" value="Signup" onclick="sendSignupRequest();">
+
+    <br><br><br>
+
+    logout <br>
+    <input type="text" name="username" id="username3">
+    <input type="submit" value="Logout" onclick="sendLogoutRequest();">
+
+    <br><br><br>
+
+    get posts <br>
+    <input type="text" name="username" id="username4">
+    <input type="submit" value="Get Posts" onclick="getPosts();">
+
 </body>
 </html>
