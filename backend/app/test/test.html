@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        BASE_URL = "http://localhost:8000/"
+        BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        // BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest(){
@@ -15,7 +15,7 @@
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", BASE_URL + "login/", true, withCredentials=true, setCookie="y1rd6rau1x44ganofvmxi1qoc4l054by");
+            xhr.open("POST", BASE_URL + "login/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&password=" + password);
             xhr.onreadystatechange = function(){
@@ -65,8 +65,9 @@
         function getPosts(){
             //get all posts
             var username = document.getElementById("username4").value;
+            console.log(username);
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", BASE_URL + "fetch_posts/", true);
+            xhr.open("POST", BASE_URL + "fetch_posts/", true);
             xhr.send("username=" + username);
             xhr.onreadystatechange = function(){
                 if (xhr.readyState == 4 && xhr.status == 200) {
