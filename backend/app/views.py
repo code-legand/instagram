@@ -24,6 +24,7 @@ def signup(request):
         data['fullname'] = request.POST.get('fullname')
         data['username'] = request.POST.get('username')
         data['password'] = request.POST.get('password')
+        print(data)
         check1 = db.user.find_one({'email': data['email']})
         check2 = db.user.find_one({'username': data['username']})
         if check1:
@@ -40,7 +41,7 @@ def signup(request):
             status = db.user_status.insert_one({"userId":data['username'], "status":"", "imagePath":""})
             if insert_confirm:
                 # request.session['username'] = data['username']
-                db.user_logged.insert_one({"username":data['username'], "status":1})
+                db.user_logged.insert_one({"username":data['username'], "status":0})
                 data = {'status': 'success', 'message': 'User created successfully'}
                 return JsonResponse(data)
             else:
@@ -101,6 +102,7 @@ def fetch_posts(request):
         # username = request.session.get('username', False)
         username = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
+        print(username)
         if userlogged:
             friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
             followers=db.user_follower.find({"sourceId":username}, {"_id":0, "targetId":1})
