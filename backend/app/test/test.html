@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        // BASE_URL = "http://localhost:8000/"
+        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest(){
@@ -68,6 +68,7 @@
             console.log(username);
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_posts/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
             xhr.onreadystatechange = function(){
                 if (xhr.readyState == 4 && xhr.status == 200) {

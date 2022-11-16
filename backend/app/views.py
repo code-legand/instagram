@@ -102,18 +102,21 @@ def fetch_posts(request):
         # username = request.session.get('username', False)
         username = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
-        print(username)
         if userlogged:
             friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
             followers=db.user_follower.find({"sourceId":username}, {"_id":0, "targetId":1})
-            people = {username, *friends, *followers}      #starred
-            people=list(people)
-            posts = {}
-            posts=db.user_post.find({"userId":{'$in':people}})
+            poeple=list()
+            for friend in friends:
+                poeple.append(friend['targetId'])
+            for follower in followers:
+                poeple.append(follower['targetId'])
+            poeple.append(username)
+            people=list(set(poeple))
+            posts=db.user_post.find({"userId":{'$in':people}}, {"_id": 0}).sort("postedAt", -1).limit(10)
             data=[]
             for post in posts:
                 data.append(post)
-            # print(data)
+            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -136,6 +139,7 @@ def store_post(request):
             data['imagePath'] = store_image(image, 'post_images')
             data['postedAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             data['likes'] = 0
+            data['likedBy'] = list()
             insert_confirm = db.user_post.insert_one(data)
             if insert_confirm:
                 data = {'status': 'success', 'message': 'Post created successfully'}
@@ -201,9 +205,10 @@ def search(request):
 @csrf_exempt
 def fetch_messages(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        targetId = request.POST.get('targetId')
-        if username:
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            targetId = request.POST.get('targetId')
             messages_list=[]
             messages=db.user_message.find({"sourceId":username, "targetId":targetId}).limit(10)
             for message in messages:
@@ -219,8 +224,9 @@ def fetch_messages(request):
 @csrf_exempt
 def store_message(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             targetId = request.POST.get('targetId')
             message = request.POST.get('message')
             sentAt = datetime.datetime.now()
@@ -241,8 +247,9 @@ def store_message(request):
 @csrf_exempt
 def fetch_status(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             status=db.user_status.find({"userId":username}, {"_id":0})
             return JsonResponse(status, safe=False)
         else:
@@ -255,8 +262,9 @@ def fetch_status(request):
 @csrf_exempt
 def store_status(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             image = request.FILE.get('image')
             imagePath = store_image(image, 'post_images')
             timeStamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
@@ -277,8 +285,9 @@ def store_status(request):
 @csrf_exempt
 def fetch_profile(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             profile=db.user.find_one({"username":username}, {"_id":0})
             follower_count = count_followers(username)
             following_count = count_following(username)
@@ -299,8 +308,9 @@ def fetch_profile(request):
 @csrf_exempt
 def update_profile_pic(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             image = request.FILE.get('image')
             imagePath = store_image(image, 'profile_images')
             status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagepath}})
@@ -320,8 +330,9 @@ def update_profile_pic(request):
 @csrf_exempt
 def update_bio(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             bio = request.POST.get('bio')
             status = db.user.update_one({"username":username}, {"$set":{"bio":bio}})
             if status:
@@ -340,8 +351,9 @@ def update_bio(request):
 @csrf_exempt
 def update_email(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             email = request.POST.get('email')
             status = db.user.update_one({"username":username}, {"$set":{"email":email}})
             if status:
@@ -360,8 +372,9 @@ def update_email(request):
 @csrf_exempt
 def update_phone(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             phone = request.POST.get('phone')
             status = db.user.update_one({"username":username}, {"$set":{"phone":phone}})
             if status:
@@ -380,8 +393,9 @@ def update_phone(request):
 @csrf_exempt
 def update_password(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             password = request.POST.get('password')
             status = db.user.update_one({"username":username}, {"$set":{"password":password}})
             if status:
@@ -400,8 +414,9 @@ def update_password(request):
 @csrf_exempt
 def update_name(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             fullname = request.POST.get('fullname')
             status = db.user.update_one({"username":username}, {"$set":{"fullname":fullname}})
             if status:
@@ -420,11 +435,12 @@ def update_name(request):
 @csrf_exempt
 def like_post(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
-            post_id = request.POST.get('post_id')
-            likes = db.post.find_one({"_id":ObjectId(post_id)}, {"likes":1})
-            status = db.user_post.update_one({"post_id":post_id}, {"$set":{"likes":likes+1}})
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            postedAt = request.POST.get('postedAt')
+            likes = db.user_post.find_one({"username":username, "postedAt":postedAt}, {"likes":1})
+            status = db.user_post.update_one({"username":username, "postedAt":postedAt}, {"$set":{"likes":likes+1}, "$push":{"likedBy":username}})      # $push is used to add a value to an array
             if status:
                 data = {'status': 'success', 'message': 'Post liked successfully'}
                 return JsonResponse(data)
@@ -441,11 +457,12 @@ def like_post(request):
 @csrf_exempt
 def unlike_post(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
-            post_id = request.POST.get('post_id')
-            likes = db.post.find_one({"_id":ObjectId(post_id)}, {"likes":1})
-            status = db.user_post.update_one({"post_id":post_id}, {"$set":{"likes":likes-1}})            
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            postedAt = request.POST.get('postedAt')
+            likes = db.user_post.find_one({"username":username, "postedAt":postedAt}, {"likes":1})
+            status = db.user_post.update_one({"username":username, "postedAt":postedAt}, {"$set":{"likes":likes+1}, "$pull":{"likedBy":username}})      # $pull is used to remove the username from the array
             if status:
                 data = {'status': 'success', 'message': 'Post unliked successfully'}
                 return JsonResponse(data)
@@ -462,8 +479,9 @@ def unlike_post(request):
 @csrf_exempt
 def fetch_friends(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friends = db.user_friend.find({"$or":[{"sourceId":username},{"targetId":username}], "status":"accepted"})
             data = []
             for friend in friends:
@@ -479,8 +497,9 @@ def fetch_friends(request):
 @csrf_exempt
 def send_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             status = db.user_friend.insert_one({"sourceId":username, "targetId":friend_username, "status":"pending"})
             if status:
@@ -499,8 +518,9 @@ def send_friend_request(request):
 @csrf_exempt
 def accept_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             createdAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             type = "normal"
@@ -521,8 +541,9 @@ def accept_friend_request(request):
 @csrf_exempt
 def reject_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             status = db.user_friend.update({"sourceId":friend_username, "targetId":username}, {"$set":{"status":"rejected"}})
             if status:
@@ -541,8 +562,9 @@ def reject_friend_request(request):
 @csrf_exempt
 def cancel_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             status = db.user_friend.update({"sourceId":username, "targetId":friend_username}, {"$set":{"status":"cancelled"}})
             if status:
@@ -561,8 +583,9 @@ def cancel_friend_request(request):
 @csrf_exempt
 def fetch_sent_friend_requests(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_requests = db.user_friend.find({"sourceId":username, "status":"pending"}, {"_id":0})
             data = []
             for friend_request in friend_requests:
@@ -578,8 +601,9 @@ def fetch_sent_friend_requests(request):
 @csrf_exempt
 def fetch_received_friend_requests(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_requests = db.user_friend.find({"targetId":username, "status":"pending"}, {"_id":0})
             data = []
             for friend_request in friend_requests:
@@ -597,8 +621,9 @@ def fetch_received_friend_requests(request):
 @csrf_exempt
 def normal_to_close_friend(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             updatedAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user_friend.update({"$or":[{"sourceId":username, "targetId":friend_username}, {"sourceId":friend_username, "targetId":username}]}, {"$set":{"type":"close", "updatedAt":updatedAt}})
@@ -618,8 +643,9 @@ def normal_to_close_friend(request):
 @csrf_exempt
 def close_to_normal_friend(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             updatedAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user_friend.update({"$or":[{"sourceId":username, "targetId":friend_username}, {"sourceId":friend_username, "targetId":username}]}, {"$set":{"type":"normal", "updatedAt":updatedAt}})
@@ -639,8 +665,9 @@ def close_to_normal_friend(request):
 @csrf_exempt
 def unfriend(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             updatedAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user_friend.remove({"sourceId":username, "targetId":friend_usernam, "status":"accepted"}, {"$set":{"status":"unfriended", "updatedAt":updatedAt}})
@@ -660,8 +687,9 @@ def unfriend(request):
 @csrf_exempt
 def fetch_followers(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             followers = db.user_follow.find({"targetId":username, "status":"accepted"}, {"_id":0})
             data = []
             for follower in followers:
@@ -677,8 +705,9 @@ def fetch_followers(request):
 @csrf_exempt
 def fetch_following(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             following = db.user_friend.find({"sourceId":username, "status":"accepted"}, {"_id":0})
             data = []
             for follow in following:
@@ -694,8 +723,9 @@ def fetch_following(request):
 @csrf_exempt
 def fetch_follow_requests(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0})
             data = []
             for follow_request in follow_requests:
@@ -711,8 +741,9 @@ def fetch_follow_requests(request):
 @csrf_exempt
 def follow_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             follow_username = request.POST.get('follow_username')
             message = request.POST.get('message')
             status = db.user_follow.insert({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
@@ -732,8 +763,9 @@ def follow_request(request):
 @csrf_exempt
 def accept_follow_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             follow_username = request.POST.get('follow_username')
             createdAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user_follow.update({"sourceId":follow_username, "targetId":username, "status":"pending"}, {"$set":{"status":"accepted", "createdAt":createdAt}})
@@ -753,8 +785,9 @@ def accept_follow_request(request):
 @csrf_exempt
 def reject_follow_request(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             follow_username = request.POST.get('follow_username')
             status = db.user_follow.remove({"sourceId":follow_username, "targetId":username, "status":"pending"})
             if status:
@@ -773,8 +806,9 @@ def reject_follow_request(request):
 @csrf_exempt
 def unfollow(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             unfollow_username = request.POST.get('unfollow_username')
             status = db.user_follow.remove({"sourceId":username, "targetId":unfollow_username, "status":"accepted"})
             if status:
@@ -793,8 +827,9 @@ def unfollow(request):
 @csrf_exempt
 def get_image(request):
     if request.method == 'POST' or request.method == 'GET':
-        username = request.session.get('username', False)
-        if username:
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
             imagPath = request.POST.get('imagePath')
             image = open(imagPath, 'rb')
             if image:
