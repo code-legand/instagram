@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse, FileResponse
+from backend import settings
 import json
 import pymongo
 import dns
 import datetime
 import uuid     #for unique image name
+import os
 from django.views.decorators.csrf import csrf_exempt
 
 client = pymongo.MongoClient("mongodb+srv://user:user@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority")
@@ -136,6 +138,7 @@ def store_post(request):
             data['userId'] = username
             data['caption'] = request.POST.get('caption')
             image = request.FILES.get('image')
+            print(image)
             data['imagePath'] = store_image(image, 'post_images')
             data['postedAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             data['likes'] = 0
@@ -210,8 +213,9 @@ def fetch_messages(request):
         if userlogged:
             targetId = request.POST.get('targetId')
             messages_list=[]
-            messages=db.user_message.find({"sourceId":username, "targetId":targetId}).limit(10)
+            messages=db.user_message.find({"sourceId":username, "targetId":targetId}).sort("sentAt", -1).limit(10)
             for message in messages:
+                message['_id']=str(message['_id'])
                 messages_list.append(message)
             return JsonResponse(messages_list, safe=False)
         else:
@@ -869,7 +873,8 @@ def count(obj):
     return ct
 
 def store_image(image, subfolder):
-    image_extention = image.name.split('.')[-1]
+    image_name = image.name
+    image_extention = image_name.split('.')[-1]
     image_name = str(uuid.uuid4()) + '.' + image_extention
     image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
     with open(image_path, 'wb+') as file:

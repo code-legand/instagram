@@ -78,6 +78,120 @@
                 }
             }
         }
+
+        function sendpost(){
+            //send post
+            var username = document.getElementById("username5").value;
+            var caption = document.getElementById("caption").value;
+            var image = document.getElementById("image").value;
+            // var xhr = new XMLHttpRequest();
+            // xhr.open("POST", BASE_URL + "store_post/", true);
+            // xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+            // xhr.send("username=" + username + "&caption=" + caption + "&image=" + image);
+
+            var formData = new FormData();
+            formData.append("image", document.getElementById("image").files[0]);
+            formData.append("username", username);
+            formData.append("caption", caption);
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "store_post/", true);
+            xhr.send(formData);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }        
+
+        function recommendations(){
+            //get recommendations
+            var username = document.getElementById("username6").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "recommendations/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function search(){
+            //search
+            var username = document.getElementById("username7").value;
+            var search = document.getElementById("search").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "search/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&search_string=" + search);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function getMessages(){
+            //get messages
+            var username = document.getElementById("username9").value;
+            var username2 = document.getElementById("username10").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_messages/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&targetId=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function sendMessage(){
+            //send message
+            var username = document.getElementById("username11").value;
+            var username2 = document.getElementById("username12").value;
+            var message = document.getElementById("message").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "store_message/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&targetId=" + username2 + "&message=" + message);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        
+
+        function likepost(){
+            //like post
+            var username = document.getElementById("username6").value;
+            var post_id = document.getElementById("post_id").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "like_post/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&post_id=" + post_id);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
     </script>
 
 </head>
@@ -109,14 +223,76 @@
     <br><br><br>
 
     logout <br>
+    username
     <input type="text" name="username" id="username3">
     <input type="submit" value="Logout" onclick="sendLogoutRequest();">
 
     <br><br><br>
 
     get posts <br>
+    username
     <input type="text" name="username" id="username4">
     <input type="submit" value="Get Posts" onclick="getPosts();">
+
+    <br><br><br>
+
+    send post <br>
+    username
+    <input type="text" name="username" id="username5">
+    <br>
+    caption
+    <input type="text" name="caption" id="caption">
+    <br>
+    image
+    <input type="file" name="image" id="image">
+    <input type="submit" value="Send Post" onclick="sendpost();">
+
+    <br><br><br>
+
+    recommendations <br>
+    username
+    <input type="text" name="username" id="username6">
+    <input type="submit" value="Get Recommendations" onclick="recommendations();">
+
+    <br><br><br>
+    search <br>
+    username
+    <input type="text" name="username" id="username7">
+    <br>
+    search
+    <input type="text" name="search" id="search" oninput="search();">
+    <!-- <input type="submit" value="Search" onclick="search();"> -->
+
+    <br><br><br>
+
+    <!-- <form action="http://localhost:8000/store_post/" method="post" enctype="multipart/form-data">
+        <input type="text" name="username" id="username8">
+        <input type="text" name="caption" id="caption2">
+        <input type="file" name="image" id="image2">
+        <input type="submit" value="Send Post"">
+    </form> -->
+
+    get messages <br>
+    username
+    <input type="text" name="username" id="username9">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username10">
+    <input type="submit" value="Get Messages" onclick="getMessages();">
+
+    <br><br><br>
+
+    send message <br>
+    username
+    <input type="text" name="username" id="username11">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username12">
+    <br>
+    message
+    <input type="text" name="message" id="message">
+    <input type="submit" value="Send Message" onclick="sendMessage();">
+
 
 </body>
 </html>
