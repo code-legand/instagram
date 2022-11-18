@@ -114,9 +114,10 @@ def fetch_posts(request):
                 poeple.append(follower['targetId'])
             poeple.append(username)
             people=list(set(poeple))
-            posts=db.user_post.find({"userId":{'$in':people}}, {"_id": 0}).sort("postedAt", -1).limit(10)
+            posts=db.user_post.find({"userId":{'$in':people}}).sort("postedAt", -1).limit(10)
             data=[]
             for post in posts:
+                post['_id']=str(post['_id'])
                 data.append(post)
             print(data)
             return JsonResponse(data, safe=False)
@@ -126,6 +127,28 @@ def fetch_posts(request):
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
+
+@csrf_exempt
+def fetch_my_posts(request):
+    if request.method == 'POST' or request.method == 'GET':
+        # username = request.session.get('username', False)
+        username = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            posts=db.user_post.find({"userId":username}).sort("postedAt", -1).limit(10)
+            data=[]
+            for post in posts:
+                post['_id']=str(post['_id'])
+                data.append(post)
+            print(data)
+            return JsonResponse(data, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
 
 @csrf_exempt
 def store_post(request):
@@ -269,7 +292,7 @@ def store_status(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            image = request.FILE.get('image')
+            image = request.FILES.get('image')
             imagePath = store_image(image, 'post_images')
             timeStamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagePath}})
@@ -315,9 +338,9 @@ def update_profile_pic(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            image = request.FILE.get('image')
+            image = request.FILES.get('image')
             imagePath = store_image(image, 'profile_images')
-            status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagepath}})
+            status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagePath}})
             if status:
                 data = {'status': 'success', 'message': 'Profile picture updated successfully'}
                 return JsonResponse(data)

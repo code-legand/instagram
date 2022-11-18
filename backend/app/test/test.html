@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        BASE_URL = "http://localhost:8000/"
+        
+        BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        // BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest(){
@@ -63,9 +64,8 @@
         }
 
         function getPosts(){
-            //get all posts
+            //get top 10 posts of user, friends, friends of friends
             var username = document.getElementById("username4").value;
-            console.log(username);
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_posts/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -74,6 +74,23 @@
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function getmyposts(){
+            //get top 10 posts of user
+            var username = document.getElementById("username13").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_my_posts/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    // ****** for getting image use get_image function ******
                     response = JSON.parse(response);        //contains 'status' and 'message'
                 }
             }
@@ -174,6 +191,86 @@
             }
         }
 
+        function get_image(){
+            //get image
+            var username = document.getElementById("username14").value;
+            var image_path = document.getElementById("image_path").value;
+            var image_extension = image_path.split('.').pop();
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "get_image/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.overrideMimeType('text/plain; charset=x-user-defined');                 //added line: for binary data
+            xhr.send("username=" + username + "&imagePath=" + image_path);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // // var response = xhr.responseText;
+                    var binary = "";
+                    var responseText = xhr.responseText;
+                    var responseTextLen = responseText.length;
+
+                    for ( i = 0; i < responseTextLen; i++ ) {
+                        binary += String.fromCharCode(responseText.charCodeAt(i) & 255);
+                    }
+                    var image_source = 'data:image/' + image_extension + ';base64,' + btoa(binary);
+                    document.getElementById("image2").src = image_source;       //for displaying image
+
+                    console.log(image_source);          //response from server
+                }
+            }
+        }
+        
+        function get_profile(){
+            //get profile
+            var username = document.getElementById("username14").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_profile/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    // ***** for profile pic use get_image() function *****
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function update_profile_pic(){
+            //update profile pic
+            var username = document.getElementById("username15").value;
+            var formData = new FormData();
+            formData.append("username", username);
+            formData.append("image", document.getElementById("image3").files[0]);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "update_profile_pic/", true);
+            xhr.send(formData);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function update_bio(){
+            //update bio
+            var username = document.getElementById("username16").value;
+            var bio = document.getElementById("bio").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "update_bio/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&bio=" + bio);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
         
 
         function likepost(){
@@ -192,6 +289,8 @@
                 }
             }
         }
+
+        
     </script>
 
 </head>
@@ -233,6 +332,13 @@
     username
     <input type="text" name="username" id="username4">
     <input type="submit" value="Get Posts" onclick="getPosts();">
+
+    <br><br><br>
+
+    get my posts <br>
+    username
+    <input type="text" name="username" id="username13">
+    <input type="submit" value="Get My Posts" onclick="getmyposts();">
 
     <br><br><br>
 
@@ -292,6 +398,45 @@
     message
     <input type="text" name="message" id="message">
     <input type="submit" value="Send Message" onclick="sendMessage();">
+
+    <br><br><br>
+
+    get image <br>
+    username
+    <input type="text" name="username" id="username13">
+    <br>
+    image path
+    <input type="text" name="image_path" id="image_path">
+    <input type="submit" value="Get Image" onclick="get_image();">
+    <img id="image2" src="" alt="">
+
+    <br><br><br>
+
+    get profile <br>
+    username
+    <input type="text" name="username" id="username14">
+    <input type="submit" value="Get Profile" onclick="get_profile();">
+
+    <br><br><br>
+
+    update profile pic<br>
+    username
+    <input type="text" name="username" id="username15">
+    <br>
+    image
+    <input type="file" name="image" id="image3">
+    <input type="submit" value="Update Profile Pic" onclick="update_profile_pic();">
+
+    <br><br><br>
+
+    update bio<br>
+    username
+    <input type="text" name="username" id="username16">
+    <br>
+    bio
+    <input type="text" name="bio" id="bio">
+    <input type="submit" value="Update Bio" onclick="update_bio();">
+
 
 
 </body>

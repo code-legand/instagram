@@ -23,6 +23,7 @@ urlpatterns = [
     path('login/', include('app.urls')),
     path('logout/', include('app.urls')),
     path('fetch_posts/', include('app.urls')),
+    path('fetch_my_posts/', include('app.urls')),
     path('store_posts/', include('app.urls')),
     path('recommendations/', include('app.urls')),
     path('search/', include('app.urls')),
@@ -31,5 +32,8 @@ urlpatterns = [
     path('fetch_status/', include('app.urls')),
     path('store_status/', include('app.urls')),
     path('fetch_profile/', include('app.urls')),
+    path('update_profile_pic/', include('app.urls')),
+    path('update_bio/', include('app.urls')),
+    path('get_image/', include('app.urls')),
 
 ]
