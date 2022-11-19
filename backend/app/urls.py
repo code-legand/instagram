@@ -21,4 +21,11 @@ urlpatterns = [
     path('update_profile_pic/', views.update_profile_pic, name='updateprofilepic'),
     path('update_bio/', views.update_bio, name='updatebio'),
     path('get_image/', views.get_image, name='getimage'),
+    path('fetch_followers/', views.fetch_followers, name='fetchfollowers'),
+    path('fetch_following/', views.fetch_following, name='fetchfollowing'),
+    path('fetch_follow_requests/', views.fetch_follow_requests, name='fetchfollowrequests'),
+    path('follow_request/', views.follow_request, name='followrequest'),
+    path('accept_follow_request/', views.accept_follow_request, name='acceptfollowrequest'),
+    path('reject_follow_request/', views.reject_follow_request, name='rejectfollowrequest'),
+    path('unfollow/', views.unfollow, name='unfollow'),
 ]

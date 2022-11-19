@@ -271,6 +271,122 @@
             }
         }
 
+        function send_follow_request(){
+            //send follow request
+            var username = document.getElementById("username17").value;
+            var username2 = document.getElementById("username18").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "follow_request/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&follow_username=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+        
+        function accept_follow_request(){
+            //accept follow request
+            var username = document.getElementById("username19").value;
+            var username2 = document.getElementById("username20").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "accept_follow_request/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&follow_username=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function reject_follow_request(){
+            //reject follow request
+            var username = document.getElementById("username21").value;
+            var username2 = document.getElementById("username22").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "reject_follow_request/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&follow_username=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function get_follow_requests(){
+            //get follow requests
+            var username = document.getElementById("username23").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_follow_requests/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function get_followers(){
+            //get followers
+            var username = document.getElementById("username24").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_followers/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function get_following(){
+            //get following
+            var username = document.getElementById("username25").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_following/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function unfollow(){
+            //unfollow
+            var username = document.getElementById("username26").value
+            var username2 = document.getElementById("username27").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "unfollow/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&unfollow_username=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+        
         
 
         function likepost(){
@@ -289,6 +405,7 @@
                 }
             }
         }
+
 
         
     </script>
@@ -436,6 +553,72 @@
     bio
     <input type="text" name="bio" id="bio">
     <input type="submit" value="Update Bio" onclick="update_bio();">
+
+    <br><br><br>
+
+    send follow request<br>
+    username
+    <input type="text" name="username" id="username17">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username18">
+    <input type="submit" value="Send Follow Request" onclick="send_follow_request();">
+
+    <br><br><br>
+
+    accept follow request<br>
+    username
+    <input type="text" name="username" id="username19">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username20">
+    <input type="submit" value="Accept Follow Request" onclick="accept_follow_request();">
+
+    <br><br><br>
+
+    get followers<br>
+    username
+    <input type="text" name="username" id="username21">
+    <input type="submit" value="Get Followers" onclick="get_followers();">
+
+    <br><br><br>
+
+    get following<br>
+    username
+    <input type="text" name="username" id="username22">
+    <input type="submit" value="Get Following" onclick="get_following();">
+
+    <br><br><br>
+
+    get follow requests<br>
+
+    username
+    <input type="text" name="username" id="username23">
+    <input type="submit" value="Get Follow Requests" onclick="get_follow_requests();">
+
+    <br><br><br>
+
+    reject follow request<br>
+    username
+    <input type="text" name="username" id="username24">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username25">
+    <input type="submit" value="Reject Follow Request" onclick="reject_follow_request();">
+
+    <br><br><br>
+
+    unfollow<br>
+    username
+    <input type="text" name="username" id="username26">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username27">
+    <input type="submit" value="Unfollow" onclick="unfollow();">
+
+    <br><br><br>
+    
+
 
 
 

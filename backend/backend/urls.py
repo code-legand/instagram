@@ -35,5 +35,13 @@ urlpatterns = [
     path('update_profile_pic/', include('app.urls')),
     path('update_bio/', include('app.urls')),
     path('get_image/', include('app.urls')),
+    path('fetch_followers/', include('app.urls')),
+    path('fetch_following/', include('app.urls')),
+    path('fetch_follow_requests/', include('app.urls')),
+    path('follow_request/', include('app.urls')),
+    path('accept_follow_request/', include('app.urls')),
+    path('reject_follow_request/', include('app.urls')),
+    path('unfollow/', include('app.urls')),
+    
 
 ]
