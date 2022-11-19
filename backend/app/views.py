@@ -773,7 +773,7 @@ def follow_request(request):
         if userlogged:
             follow_username = request.POST.get('follow_username')
             message = request.POST.get('message')
-            status = db.user_follow.insert({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
+            status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
             if status:
                 data = {'status': 'success', 'message': 'Follow request sent successfully'}
                 return JsonResponse(data)
@@ -795,7 +795,7 @@ def accept_follow_request(request):
         if userlogged:
             follow_username = request.POST.get('follow_username')
             createdAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-            status = db.user_follow.update({"sourceId":follow_username, "targetId":username, "status":"pending"}, {"$set":{"status":"accepted", "createdAt":createdAt}})
+            status = db.user_follow.update_one({"sourceId":follow_username, "targetId":username, "status":"pending"}, {"$set":{"status":"accepted", "createdAt":createdAt}})
             if status:
                 data = {'status': 'success', 'message': 'Follow request accepted successfully'}
                 return JsonResponse(data)
