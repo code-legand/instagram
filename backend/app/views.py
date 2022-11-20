@@ -736,7 +736,6 @@ def fetch_following(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             following = db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0})
-            following = db.user_follow.find({}, {"_id":0})
             data = []
             for follow in following:
                 data.append(follow)
