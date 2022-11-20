@@ -28,4 +28,6 @@ urlpatterns = [
     path('accept_follow_request/', views.accept_follow_request, name='acceptfollowrequest'),
     path('reject_follow_request/', views.reject_follow_request, name='rejectfollowrequest'),
     path('unfollow/', views.unfollow, name='unfollow'),
+    path('change_to_private/', views.change_to_private, name='changetoprivate'),
+    path('change_to_public/', views.change_to_public, name='changetopublic'),
 ]

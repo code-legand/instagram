@@ -42,6 +42,7 @@ urlpatterns = [
     path('accept_follow_request/', include('app.urls')),
     path('reject_follow_request/', include('app.urls')),
     path('unfollow/', include('app.urls')),
-    
+    path('change_to_private/', include('app.urls')),
+    path('change_to_public/', include('app.urls')),
 
 ]

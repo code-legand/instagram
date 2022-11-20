@@ -721,6 +721,7 @@ def fetch_followers(request):
             data = []
             for follower in followers:
                 data.append(follower)
+            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -735,10 +736,11 @@ def fetch_following(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            following = db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0})
+            following = db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0})            
             data = []
             for follow in following:
                 data.append(follow)
+            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -773,7 +775,11 @@ def follow_request(request):
         if userlogged:
             follow_username = request.POST.get('follow_username')
             message = request.POST.get('message')
-            status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
+            follow_user_is_public = db.user.find_one({"username":follow_username, type:"public"})
+            if follow_user_is_public:
+                status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"accepted"})
+            else:
+                status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
             if status:
                 data = {'status': 'success', 'message': 'Follow request sent successfully'}
                 return JsonResponse(data)
@@ -870,6 +876,47 @@ def get_image(request):
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
+
+@csrf_exempt
+def change_to_private(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            status = db.user.update_one({"username":username}, {"$set":{"type":"private"}})
+            if status:
+                data = {'status': 'success', 'message': 'Changed to private successfully'}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def change_to_public(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            status = db.user.update_one({"username":username}, {"$set":{"type":"public"}})
+            if status:
+                data = {'status': 'success', 'message': 'Changed to public successfully'}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
 
 # End of views
 

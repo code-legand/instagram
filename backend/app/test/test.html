@@ -7,8 +7,8 @@
     <title>Document</title>
     <script>
         
-        BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        // BASE_URL = "http://localhost:8000/"
+        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest(){
@@ -357,7 +357,7 @@
 
         function get_following(){
             //get following
-            var username = document.getElementById("username25").value;
+            var username = document.getElementById("username22").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_following/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -387,6 +387,39 @@
                 }
             }
         }
+        
+        function change_to_private(){
+            //change to private
+            var username = document.getElementById("username28").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "change_to_private/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function change_to_public(){
+            //change to public
+            var username = document.getElementById("username29").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "change_to_public/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
         
         
 
@@ -619,8 +652,19 @@
 
     <br><br><br>
     
+    change to private<br>
+    username
+    <input type="text" name="username" id="username28">
+    <input type="submit" value="Change to Private" onclick="change_to_private();">
 
+    <br><br><br>
 
+    change to public<br>
+    username
+    <input type="text" name="username" id="username29">
+    <input type="submit" value="Change to Public" onclick="change_to_public();">
+
+    
 
 
 </body>
