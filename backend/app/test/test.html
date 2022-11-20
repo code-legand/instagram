@@ -7,8 +7,8 @@
     <title>Document</title>
     <script>
         
-        BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        // BASE_URL = "http://localhost:8000/"
+        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest(){
@@ -64,7 +64,7 @@
         }
 
         function getPosts(){
-            //get top 10 posts of user, friends, friends of friends
+            //get top 10 posts of user, friends and those people user follows
             var username = document.getElementById("username4").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_posts/", true);
@@ -307,8 +307,8 @@
 
         function reject_follow_request(){
             //reject follow request
-            var username = document.getElementById("username21").value;
-            var username2 = document.getElementById("username22").value;
+            var username = document.getElementById("username24").value;
+            var username2 = document.getElementById("username25").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "reject_follow_request/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -324,7 +324,7 @@
 
         function get_follow_requests(){
             //get follow requests
-            var username = document.getElementById("username23").value;
+            var username = document.getElementById("username21").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_follow_requests/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -340,7 +340,7 @@
 
         function get_followers(){
             //get followers
-            var username = document.getElementById("username24").value;
+            var username = document.getElementById("username22").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_followers/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -372,8 +372,8 @@
 
         function unfollow(){
             //unfollow
-            var username = document.getElementById("username26").value
-            var username2 = document.getElementById("username27").value;
+            var username = document.getElementById("username27").value
+            var username2 = document.getElementById("username28").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "unfollow/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
