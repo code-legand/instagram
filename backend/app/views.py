@@ -755,10 +755,13 @@ def fetch_follow_requests(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
+            print(username)
             follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0})
+            print(follow_requests)
             data = []
             for follow_request in follow_requests:
                 data.append(follow_request)
+            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -775,13 +778,17 @@ def follow_request(request):
         if userlogged:
             follow_username = request.POST.get('follow_username')
             message = request.POST.get('message')
-            follow_user_is_public = db.user.find_one({"username":follow_username, type:"public"})
+            # print(follow_username)
+            follow_user_is_public = db.user.find_one({"username":follow_username, "type": "public"})
+            # print(follow_user_is_public)
             if follow_user_is_public:
                 status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"accepted"})
+                data = {'status': 'success', 'message': 'Followed successfully'}
             else:
                 status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
-            if status:
                 data = {'status': 'success', 'message': 'Follow request sent successfully'}
+            if status:
+                
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
@@ -822,7 +829,7 @@ def reject_follow_request(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             follow_username = request.POST.get('follow_username')
-            status = db.user_follow.remove({"sourceId":follow_username, "targetId":username, "status":"pending"})
+            status = db.user_follow.update_one({"sourceId":follow_username, "targetId":username, "status":"pending"}, {"$set":{"status":"rejected"}})
             if status:
                 data = {'status': 'success', 'message': 'Follow request rejected successfully'}
                 return JsonResponse(data)
@@ -843,7 +850,7 @@ def unfollow(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             unfollow_username = request.POST.get('unfollow_username')
-            status = db.user_follow.remove({"sourceId":username, "targetId":unfollow_username, "status":"accepted"})
+            status = db.user_follow.update_one({"sourceId":username, "targetId":unfollow_username, "status":"accepted"}, {"$set":{"status":"unfollowed"}})
             if status:
                 data = {'status': 'success', 'message': 'Unfollowed successfully'}
                 return JsonResponse(data)
@@ -926,11 +933,11 @@ def count_friends(username):
     return friends
 
 def count_followers(username):
-    followers=count(db.user_follow.find({"targetId":username, "status":""}))
+    followers=count(db.user_follow.find({"targetId":username, "status":"accepted"}))
     return followers
 
 def count_following(username):
-    following=count(db.user_follow.find({"sourceId":username, "status":""}))
+    following=count(db.user_follow.find({"sourceId":username, "status":"accepted"}))
     return following
 
 def count_posts(username):
