@@ -342,7 +342,7 @@ def update_profile_pic(request):
             imagePath = store_image(image, 'profile_images')
             status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagePath}})
             if status:
-                data = {'status': 'success', 'message': 'Profile picture updated successfully'}
+                data = {'status': 'success', 'message': 'Profile picture updated successfully', 'imagePath':imagePath}
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
@@ -697,7 +697,7 @@ def unfriend(request):
         if userlogged:
             friend_username = request.POST.get('friend_username')
             updatedAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-            status = db.user_friend.remove({"sourceId":username, "targetId":friend_usernam, "status":"accepted"}, {"$set":{"status":"unfriended", "updatedAt":updatedAt}})
+            status = db.user_friend.remove({"sourceId":username, "targetId":friend_username, "status":"accepted"}, {"$set":{"status":"unfriended", "updatedAt":updatedAt}})
             if status:
                 data = {'status': 'success', 'message': 'Unfriended successfully'}
                 return JsonResponse(data)
@@ -867,18 +867,16 @@ def unfollow(request):
 @csrf_exempt
 def get_image(request):
     if request.method == 'POST' or request.method == 'GET':
-        username  = request.POST.get('username')
-        userlogged = db.user_logged.find_one({"username":username, "status":1})
-        if userlogged:
-            imagPath = request.POST.get('imagePath')
-            image = open(imagPath, 'rb')
-            if image:
-                return FileResponse(image)
-            else:
-                data = {'status': 'error', 'message': 'Something went wrong'}
-                return JsonResponse(data)
+        # username  = request.POST.get('username')
+        imagePath = request.POST.get('imagePath')
+        image = open(imagePath, 'rb')
+        # image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0})
+        # print(image['image'])
+        # image to base 
+        if image:
+            return FileResponse(image)
         else:
-            data = {'status': 'error', 'message': 'Not logged in'}
+            data = {'status': 'error', 'message': 'Something went wrong'}
             return JsonResponse(data)
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
@@ -958,6 +956,20 @@ def store_image(image, subfolder):
         for chunk in image.chunks():
             file.write(chunk)
     return image_path
+
+def new_store_image(image, subfolder):
+    image_name = image.name
+    image_extention = image_name.split('.')[-1]
+    image_name = str(uuid.uuid4()) + '.' + image_extention
+    image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
+    with open(image_path, 'wb+') as file:
+        for chunk in image.chunks():
+            file.write(chunk)
+    with open(image_path, 'rb') as file:
+        image = file.read()
+    print(image)
+    db.user_image.insert_one({"imageName":image_name, "category":subfolder, "image":image})    
+    return image_name
 
 def delete_image(image_path):
     if os.path.exists(image_path):
