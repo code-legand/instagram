@@ -943,7 +943,6 @@ def count(obj):
 def store_image(image, subfolder):
     image_name = image.name
     image_content = image.read()
-    print(image_content)
     image_extention = image_name.split('.')[-1]
     image_name = str(uuid.uuid4()) + '.' + image_extention
     image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
@@ -962,7 +961,6 @@ def new_store_image(image, subfolder):
             file.write(chunk)
     with open(image_path, 'rb') as file:
         image = file.read()
-    print(image)
     db.user_image.insert_one({"imageName":image_name, "category":subfolder, "image":image})    
     return image_name
 
