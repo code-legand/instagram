@@ -26,7 +26,6 @@ def signup(request):
         data['fullname'] = request.POST.get('fullname')
         data['username'] = request.POST.get('username')
         data['password'] = request.POST.get('password')
-        print(data)
         check1 = db.user.find_one({'email': data['email']})
         check2 = db.user.find_one({'username': data['username']})
         if check1:
@@ -119,7 +118,6 @@ def fetch_posts(request):
             for post in posts:
                 post['_id']=str(post['_id'])
                 data.append(post)
-            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -140,7 +138,6 @@ def fetch_my_posts(request):
             for post in posts:
                 post['_id']=str(post['_id'])
                 data.append(post)
-            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -161,8 +158,7 @@ def store_post(request):
             data['userId'] = username
             data['caption'] = request.POST.get('caption')
             image = request.FILES.get('image')
-            print(image)
-            data['imagePath'] = store_image(image, 'post_images')
+            data['imagePath'] = new_store_image(image, 'post_images')
             data['postedAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             data['likes'] = 0
             data['likedBy'] = list()
@@ -293,7 +289,7 @@ def store_status(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             image = request.FILES.get('image')
-            imagePath = store_image(image, 'post_images')
+            imagePath = new_store_image(image, 'post_images')
             timeStamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagePath}})
             if status:
@@ -339,7 +335,7 @@ def update_profile_pic(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             image = request.FILES.get('image')
-            imagePath = store_image(image, 'profile_images')
+            imagePath = new_store_image(image, 'profile_images')
             status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagePath}})
             if status:
                 data = {'status': 'success', 'message': 'Profile picture updated successfully', 'imagePath':imagePath}
@@ -721,7 +717,6 @@ def fetch_followers(request):
             data = []
             for follower in followers:
                 data.append(follower)
-            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -740,7 +735,6 @@ def fetch_following(request):
             data = []
             for follow in following:
                 data.append(follow)
-            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -755,13 +749,10 @@ def fetch_follow_requests(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            print(username)
             follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0})
-            print(follow_requests)
             data = []
             for follow_request in follow_requests:
                 data.append(follow_request)
-            print(data)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -778,9 +769,7 @@ def follow_request(request):
         if userlogged:
             follow_username = request.POST.get('follow_username')
             message = request.POST.get('message')
-            # print(follow_username)
             follow_user_is_public = db.user.find_one({"username":follow_username, "type": "public"})
-            # print(follow_user_is_public)
             if follow_user_is_public:
                 status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"accepted"})
                 data = {'status': 'success', 'message': 'Followed successfully'}
@@ -869,19 +858,21 @@ def get_image(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
         imagePath = request.POST.get('imagePath')
-        image = open(imagePath, 'rb')
-        # image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0})
-        # print(image['image'])
-        # image to base 
+        image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0})
         if image:
-            return FileResponse(image)
+            image_extension = imagePath.split(".")[-1]
+            image = image.get('image')
+            f=open("media/temp/tempfile.{image_extension}", "wb")
+            f.write(image)
+            f.close()
+            fh = open("media/temp/tempfile.{image_extension}", "rb")
+            return FileResponse(fh)
         else:
-            data = {'status': 'error', 'message': 'Something went wrong'}
+            data = {'status': 'error', 'message': 'No image found'}
             return JsonResponse(data)
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
-
 
 @csrf_exempt
 def change_to_private(request):
@@ -948,8 +939,11 @@ def count(obj):
     for ob in obj: ct+=1
     return ct
 
+# legacy code
 def store_image(image, subfolder):
     image_name = image.name
+    image_content = image.read()
+    print(image_content)
     image_extention = image_name.split('.')[-1]
     image_name = str(uuid.uuid4()) + '.' + image_extention
     image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
