@@ -867,7 +867,7 @@ def unfollow(request):
 @csrf_exempt
 def get_image(request):
     if request.method == 'POST' or request.method == 'GET':
-        # username  = request.POST.get('username')
+        username  = request.POST.get('username')
         imagePath = request.POST.get('imagePath')
         image = open(imagePath, 'rb')
         # image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0})
@@ -881,6 +881,7 @@ def get_image(request):
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
+
 
 @csrf_exempt
 def change_to_private(request):
