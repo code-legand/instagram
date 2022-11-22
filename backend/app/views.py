@@ -955,7 +955,8 @@ def new_store_image(image, subfolder):
     image_name = image.name
     image_extention = image_name.split('.')[-1]
     image_name = str(uuid.uuid4()) + '.' + image_extention
-    image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
+    # image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
+    image_path = "media/temp/tempfile.jfif"
     with open(image_path, 'wb+') as file:
         for chunk in image.chunks():
             file.write(chunk)
