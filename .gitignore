@@ -1,4 +1,2 @@
 __pycache__
 *.swp
-/backend/media/*
-media/*
