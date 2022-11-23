@@ -164,7 +164,7 @@ def store_post(request):
             data['likedBy'] = list()
             insert_confirm = db.user_post.insert_one(data)
             if insert_confirm:
-                data = {'status': 'success', 'message': 'Post created successfully'}
+                data = {'status': 'success', 'message': 'Post created successfully', 'imagePath': data['imagePath']}
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
@@ -183,16 +183,17 @@ def recommendations(request):
         username = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            friend_list=[]
-            friends=db.user_friend.find({"sourceId":username}, {"_id":0, "targetId":1}).limit(10)
-            for friend in friends:
-                friend_list.append(friend['targetId'])
-            friend_of_friend_list=[]
-            friends_of_friends=db.user_friend.find({"sourceId":{'$in':friend_list}}, {"_id":0, "targetId":1}).limit(10)
-            for friend in friends_of_friends:
-                friend_of_friend_list.append(friend['targetId'])
-            recommendation_list=[]
-            recommendations=db.user.find({"username":{'$in':friend_list}, "username":{'$in':friend_of_friend_list}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
+            # friend_list=[]
+            # friends=db.user_friend.find({"sourceId":username}, {"_id":0, "targetId":1}).limit(10)
+            # for friend in friends:
+            #     friend_list.append(friend['targetId'])
+            # friend_of_friend_list=[]
+            # friends_of_friends=db.user_friend.find({"sourceId":{'$in':friend_list}}, {"_id":0, "targetId":1}).limit(10)
+            # for friend in friends_of_friends:
+            #     friend_of_friend_list.append(friend['targetId'])
+            # recommendation_list=[]
+            # recommendations=db.user.find({"username":{'$in':friend_list}, "username":{'$in':friend_of_friend_list}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
+            recommendations=db.user.find({"username":{'$regex':"^{username}.+".format(username=username)}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
             for recommendation in recommendations:
                 recommendation_list.append(recommendation)
             return JsonResponse(recommendation_list, safe=False)
@@ -293,7 +294,7 @@ def store_status(request):
             timeStamp = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             status = db.user.update_one({"username":username}, {"$set":{"imagePath":imagePath}})
             if status:
-                data = {'status': 'success', 'message': 'Status updated successfully'}
+                data = {'status': 'success', 'message': 'Status updated successfully', 'imagePath':imagePath}
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
@@ -565,8 +566,8 @@ def accept_friend_request(request):
 def reject_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
-        userlogged = db.user_logged.find_one({"username":username, "status":1})
-        if userlogged:
+        # userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if 1:
             friend_username = request.POST.get('friend_username')
             status = db.user_friend.update({"sourceId":friend_username, "targetId":username}, {"$set":{"status":"rejected"}})
             if status:
