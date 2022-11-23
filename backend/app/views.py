@@ -104,11 +104,11 @@ def fetch_posts(request):
         username = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
+            # friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
             followers=db.user_follow.find({"sourceId":username}, {"_id":0, "targetId":1})            
             poeple=list()
-            for friend in friends:
-                poeple.append(friend['targetId'])
+            # for friend in friends:
+            #     poeple.append(friend['targetId'])
             for follower in followers:
                 poeple.append(follower['targetId'])
             poeple.append(username)
@@ -117,6 +117,8 @@ def fetch_posts(request):
             data=[]
             for post in posts:
                 post['_id']=str(post['_id'])
+                profileImagePath=db.user.find_one({"username":post['userId']}, {"_id":0, "imagePath":1})
+                post['profileImagePath']=profileImagePath.get('imagePath', '')
                 data.append(post)
             return JsonResponse(data, safe=False)
         else:
