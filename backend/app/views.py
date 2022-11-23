@@ -311,7 +311,7 @@ def fetch_profile(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
-        if userlogged:
+        if 1:
             profile=db.user.find_one({"username":username}, {"_id":0, "password":0})
             follower_count = count_followers(username)
             following_count = count_following(username)
@@ -567,7 +567,7 @@ def reject_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
         # userlogged = db.user_logged.find_one({"username":username, "status":1})
-        if 1:
+        if userlogged:
             friend_username = request.POST.get('friend_username')
             status = db.user_friend.update({"sourceId":friend_username, "targetId":username}, {"$set":{"status":"rejected"}})
             if status:
