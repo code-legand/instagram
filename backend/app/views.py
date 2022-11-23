@@ -312,7 +312,7 @@ def fetch_profile(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            profile=db.user.find_one({"username":username}, {"_id":0})
+            profile=db.user.find_one({"username":username}, {"_id":0, "password":0})
             follower_count = count_followers(username)
             following_count = count_following(username)
             friend_count = count_friends(username)
