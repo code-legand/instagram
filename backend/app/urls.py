@@ -30,4 +30,5 @@ urlpatterns = [
     path('unfollow/', views.unfollow, name='unfollow'),
     path('change_to_private/', views.change_to_private, name='changetoprivate'),
     path('change_to_public/', views.change_to_public, name='changetopublic'),
+    path('like_post/', views.like_post, name='likepost'),
 ]
