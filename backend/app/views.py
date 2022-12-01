@@ -468,11 +468,15 @@ def like_post(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            # postedAt = request.POST.get('postedAt')
-            # likes = db.user_post.find_one({"username":username, "postedAt":postedAt}, {"likes":1})
-            # status = db.user_post.update_one({"username":username, "postedAt":postedAt}, {"$set":{"likes":likes+1}, "$push":{"likedBy":username}})      # $push is used to add a value to an array
             post_id = request.POST.get('post_id')
-            status = db.user_post.update_one({"_id":"ObjectId({post_id})".format(post_id=post_id)}, {"$inc":{"likes":1}, "$push":{"likedBy":username}})
+            temp = db.user_post.find({}, {"_id":1, "postedAt":1, "userId":1})
+            for t in temp:
+                if str(t["_id"]) == post_id:
+                    postedAt = t["postedAt"]
+                    userId = t["userId"]
+                    break
+            status = db.user_post.update_one({"postedAt":postedAt, "userId":userId}, {"$inc":{"likes":1}, "$push":{"likedBy":username}})
+
             if status:
                 data = {'status': 'success', 'message': 'Post liked successfully'}
                 return JsonResponse(data)
@@ -492,21 +496,21 @@ def unlike_post(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            postedAt = request.POST.get('postedAt')
-            likes = db.user_post.find_one({"username":username, "postedAt":postedAt}, {"likes":1})
-            status = db.user_post.update_one({"username":username, "postedAt":postedAt}, {"$set":{"likes":likes+1}, "$pull":{"likedBy":username}})      # $pull is used to remove the username from the array
+            post_id = request.POST.get('post_id')
+            temp = db.user_post.find({}, {"_id":1, "postedAt":1, "userId":1})
+            for t in temp:
+                if str(t["_id"]) == post_id:
+                    postedAt = t["postedAt"]
+                    userId = t["userId"]
+                    break
+            status = db.user_post.update_one({"postedAt":postedAt, "userId":userId}, {"$inc":{"likes":-1}, "$pull":{"likedBy":username}})
+
             if status:
                 data = {'status': 'success', 'message': 'Post unliked successfully'}
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
                 return JsonResponse(data)
-        else:
-            data = {'status': 'error', 'message': 'Not logged in'}
-            return JsonResponse(data)
-    else:
-        data = {'status': 'error', 'message': 'Invalid request'}
-        return JsonResponse(data)
 
 @csrf_exempt
 def fetch_friends(request):
