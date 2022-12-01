@@ -468,9 +468,11 @@ def like_post(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            postedAt = request.POST.get('postedAt')
-            likes = db.user_post.find_one({"username":username, "postedAt":postedAt}, {"likes":1})
-            status = db.user_post.update_one({"username":username, "postedAt":postedAt}, {"$set":{"likes":likes+1}, "$push":{"likedBy":username}})      # $push is used to add a value to an array
+            # postedAt = request.POST.get('postedAt')
+            # likes = db.user_post.find_one({"username":username, "postedAt":postedAt}, {"likes":1})
+            # status = db.user_post.update_one({"username":username, "postedAt":postedAt}, {"$set":{"likes":likes+1}, "$push":{"likedBy":username}})      # $push is used to add a value to an array
+            post_id = request.POST.get('post_id')
+            status = db.user_post.update_one({"_id":ObjectId(post_id)}, {"$inc":{"likes":1}, "$push":{"likedBy":username}})
             if status:
                 data = {'status': 'success', 'message': 'Post liked successfully'}
                 return JsonResponse(data)

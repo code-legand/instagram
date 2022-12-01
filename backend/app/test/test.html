@@ -425,10 +425,27 @@
 
         function likepost(){
             //like post
-            var username = document.getElementById("username6").value;
+            var username = document.getElementById("username30").value;
             var post_id = document.getElementById("post_id").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "like_post/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&post_id=" + post_id);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function unlikepost(){
+            //unlike post
+            var username = document.getElementById("username31").value;
+            var post_id = document.getElementById("post_id").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "unlike_post/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&post_id=" + post_id);
             xhr.onreadystatechange = function(){
@@ -664,6 +681,25 @@
     <input type="text" name="username" id="username29">
     <input type="submit" value="Change to Public" onclick="change_to_public();">
 
+    like post<br>
+    username
+    <input type="text" name="username" id="username30">
+    <br>
+    post id
+    <input type="text" name="post_id" id="post_id">
+    <input type="submit" value="Like Post" onclick="likepost();">
+
+    <br><br><br>
+
+    unlike post<br>
+    username
+    <input type="text" name="username" id="username31">
+    <br>
+    post id
+    <input type="text" name="post_id" id="post_id2">
+    <input type="submit" value="Unlike Post" onclick="unlikepost();">
+
+    <br><br><br>
 
 
 
