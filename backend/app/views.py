@@ -120,6 +120,10 @@ def fetch_posts(request):
                 profileImagePath=db.user.find_one({"username":post['userId']}, {"_id":0, "imagePath":1})
                 post['profileImagePath']=profileImagePath.get('imagePath', '')
                 data.append(post)
+                if username in post['likedBy']:
+                    post['liked']=True
+                else:
+                    post['liked']=False
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
