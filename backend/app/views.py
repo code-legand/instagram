@@ -765,6 +765,8 @@ def fetch_follow_requests(request):
             follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0})
             data = []
             for follow_request in follow_requests:
+                imagePath = db.user.find_one({"username":follow_request['sourceId']}, {"_id":0, "imagePath":1})
+                follow_request['imagePath'] = imagePath['imagePath']
                 data.append(follow_request)
             return JsonResponse(data, safe=False)
         else:
