@@ -105,7 +105,7 @@ def fetch_posts(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             # friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
-            followers=db.user_follow.find({"sourceId":username}, {"_id":0, "targetId":1})            
+            followers=db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0, "targetId":1})            
             poeple=list()
             # for friend in friends:
             #     poeple.append(friend['targetId'])
