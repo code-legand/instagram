@@ -941,7 +941,16 @@ def get_user_info(request):
             for status in follow_status:
                 user['follow_status'] = status.get('status')
             user['follow_status'] = user.get('follow_status', 'follow request not sent')
-            print(user)
+
+            follower_count = count_followers(username2)
+            following_count = count_following(username2)
+            friend_count = count_friends(username2)
+            posts_count = count_posts(username2)
+            user['following_count']=following_count
+            user['follower_count']=follower_count
+            user['friend_count']=friend_count
+            user['posts_count']=posts_count
+
             return JsonResponse(user)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
