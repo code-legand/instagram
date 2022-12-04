@@ -457,6 +457,23 @@
             }
         }
 
+        function get_userProfile(){
+            //get user profile
+            var username = document.getElementById("username32").value;     //current user
+            var username2 = document.getElementById("username33").value;        //user whose profile is to be fetched
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "get_user_info/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&username2=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
 
         
     </script>
@@ -698,6 +715,16 @@
     post id
     <input type="text" name="post_id" id="post_id2">
     <input type="submit" value="Unlike Post" onclick="unlikepost();">
+
+    <br><br><br>
+
+    get user profile info<br>
+    username
+    <input type="text" name="username" id="username32">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username33">
+    <input type="submit" value="Get User Profile Info" onclick="get_userProfile();">
 
     <br><br><br>
 

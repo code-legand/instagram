@@ -31,4 +31,6 @@ urlpatterns = [
     path('change_to_private/', views.change_to_private, name='changetoprivate'),
     path('change_to_public/', views.change_to_public, name='changetopublic'),
     path('like_post/', views.like_post, name='likepost'),
+    path('unlike_post/', views.unlike_post, name='unlikepost'),
+    path('get_user_info/', views.get_user_info, name='getuserinfo'),
 ]

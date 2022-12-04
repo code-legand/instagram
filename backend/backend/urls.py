@@ -45,4 +45,6 @@ urlpatterns = [
     path('change_to_private/', include('app.urls')),
     path('change_to_public/', include('app.urls')),
     path('like_post/', include('app.urls')),
+    path('unlike_post/', include('app.urls')),
+    path('get_user_info/', include('app.urls')),
 ]

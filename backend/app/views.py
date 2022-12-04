@@ -929,6 +929,27 @@ def change_to_public(request):
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
 
+@csrf_exempt
+def get_user_info(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            username2 = request.POST.get('username2')
+            user = db.user.find_one({"username":username2}, {"_id":0, "password":0})
+            if user:
+                follow_status = db.user_follow.find({"sourceId":username, "targetId":username2}).sort("createdAt", -1).limit(1)
+            user['follow_status'] = follow_status[0].get('status', 'follow request not sent')
+            return JsonResponse(user)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+
+
 
 # End of views
 
@@ -966,6 +987,7 @@ def store_image(image, subfolder):
             file.write(chunk)
     return image_path
 
+#new code
 def new_store_image(image, subfolder):
     image_name = image.name
     image_extention = image_name.split('.')[-1]
