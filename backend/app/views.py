@@ -119,6 +119,7 @@ def fetch_posts(request):
                 post['_id']=str(post['_id'])
                 profileImagePath=db.user.find_one({"username":post['userId']}, {"_id":0, "imagePath":1})
                 post['profileImagePath']=profileImagePath.get('imagePath', '')
+                post['postedAt']=datemapper(post['postedAt'])
                 data.append(post)
                 if username in post['likedBy']:
                     post['liked']=True
@@ -143,6 +144,7 @@ def fetch_my_posts(request):
             data=[]
             for post in posts:
                 post['_id']=str(post['_id'])
+                post['postedAt']=datemapper(post['postedAt'])
                 data.append(post)
             return JsonResponse(data, safe=False)
         else:
@@ -780,7 +782,7 @@ def fetch_follow_requests(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0})
+            follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0}).sort("createdAt", -1)
             data = []
             for follow_request in follow_requests:
                 details = db.user.find_one({"username":follow_request['sourceId']})
@@ -1037,6 +1039,14 @@ def delete_image(image_path):
         return True
     else:
         return False
+
+def datemapper(date):
+    if date.day == datetime.datetime.now().day:
+        return "Today"
+    else:
+        return date.strftime("%B %d, %Y")
+    
+    return date
     
 
 
