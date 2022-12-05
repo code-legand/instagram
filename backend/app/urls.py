@@ -33,4 +33,9 @@ urlpatterns = [
     path('like_post/', views.like_post, name='likepost'),
     path('unlike_post/', views.unlike_post, name='unlikepost'),
     path('get_user_info/', views.get_user_info, name='getuserinfo'),
+    path('store_story/', views.store_story, name='storestory'),
+    path('fetch_stories/', views.fetch_stories, name='fetchstories'),
+    path('fetch_my_stories/', views.fetch_my_stories, name='fetchmystories'),
+    path('fetch_user_stories/', views.fetch_user_stories, name='fetchuserstories'),
+    path('delete_story/', views.delete_story, name='deletestory'),
 ]

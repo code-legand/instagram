@@ -47,4 +47,9 @@ urlpatterns = [
     path('like_post/', include('app.urls')),
     path('unlike_post/', include('app.urls')),
     path('get_user_info/', include('app.urls')),
+    path('store_story/', include('app.urls')),
+    path('fetch_stories/', include('app.urls')),
+    path('fetch_my_stories/', include('app.urls')),
+    path('fetch_user_stories/', include('app.urls')),
+    path('delete_story/', include('app.urls')),
 ]

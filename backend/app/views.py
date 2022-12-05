@@ -4,6 +4,7 @@ from backend import settings
 import json
 import pymongo
 import dns
+from bson.objectid import ObjectId
 import datetime
 import uuid     #for unique image name
 import os
@@ -979,6 +980,129 @@ def get_user_info(request):
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
 
+@csrf_exempt
+def store_story(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            data=dict()
+            data['userId'] = username
+            image = request.FILES.get('image')
+            data['imagePath'] = new_store_image(image, 'story_images')
+            data['postedAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            data['isAvailable'] = True
+            insert_confirm = db.user_story.insert_one(data)
+            if insert_confirm:
+                data = {'status': 'success', 'message': 'Story created successfully', 'imagePath': data['imagePath']}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Something went wrong'}
+                return JsonResponse(data)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def fetch_stories(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            followers = db.user_follow.find({"targetId":username, "status":"accepted"}, {"_id":0, "sourceId":1})
+            followers_list = list()
+            followers_list.append(username)
+            for follower in followers:
+                followers_list.append(follower.get('sourceId'))
+            stories = db.user_story.find({"userId":{"$in":followers_list}, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+            story_list=list()
+            for story in stories:
+                timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
+                if timegap.days < 1:
+                    story["_id"] = str(story.get('_id'))
+                    story_list.append(story)
+                else:
+                    db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
+            return JsonResponse(story_list, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def fetch_my_stories(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            stories = db.user_story.find({"userId":username, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+            story_list=list()
+            for story in stories:
+                timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
+                if timegap.days < 1:
+                    story["_id"] = str(story.get('_id'))
+                    story_list.append(story)
+                else:
+                    db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
+            return JsonResponse(story_list, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def fetch_user_stories(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            username2 = request.POST.get('username2')
+            stories = db.user_story.find({"userId":username2, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+            story_list=list()
+            for story in stories:
+                timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
+                if timegap.days < 1:
+                    story["_id"] = str(story.get('_id'))
+                    story_list.append(story)
+                else:
+                    db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
+            return JsonResponse(story_list, safe=False)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
+
+@csrf_exempt
+def delete_story(request):
+    if request.method == 'POST' or request.method == 'GET':
+        username  = request.POST.get('username')
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
+        if userlogged:
+            # imagePath = request.POST.get('imagePath')
+            storyId = request.POST.get('story_id')
+            # status = db.user_story.delete_one({"imagePath":imagePath})
+            status = db.user_story.delete_one({"_id":ObjectId(storyId)})
+            if status.deleted_count == 1:
+                data = {'status': 'success', 'message': 'Story deleted'}
+                return JsonResponse(data)
+            else:
+                data = {'status': 'error', 'message': 'Story not deleted'}
+                return JsonResponse(data)
+        else:
+            data = {'status': 'error', 'message': 'Not logged in'}
+            return JsonResponse(data)
+    else:
+        data = {'status': 'error', 'message': 'Invalid request'}
+        return JsonResponse(data)
 
 
 
@@ -1046,7 +1170,6 @@ def datemapper(posted_at):
         return "Today"
     else:
         return datetime.datetime.strptime(posted_at, '%Y-%m-%d').strftime('%B %d, %Y')
-    
     return date
     
 

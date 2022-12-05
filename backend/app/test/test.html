@@ -7,8 +7,8 @@
     <title>Document</title>
     <script>
         
-        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        BASE_URL = "http://localhost:8000/"
+        BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        // BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest(){
@@ -474,6 +474,91 @@
             }
         }
 
+        function send_story(){
+            //send story
+            var username = document.getElementById("username34").value;
+            var formData = new FormData();
+            formData.append("username", username);
+            formData.append("image", document.getElementById("image4").files[0]);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "store_story/", true);
+            xhr.send(formData);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function get_stories(){
+            //get stories of user and followers
+            var username = document.getElementById("username35").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_stories/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function get_my_stories(){
+            //get my stories
+            var username = document.getElementById("username36").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_my_stories/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function get_user_stories(){
+            //get stories of a particular user
+            var username = document.getElementById("username37").value;
+            var username2 = document.getElementById("username38").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "fetch_user_stories/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&username2=" + username2);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function delete_story(){
+            //delete story
+            var username = document.getElementById("username39").value;
+            var story_id = document.getElementById("story_id").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "delete_story/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username + "&story_id=" + story_id);
+            xhr.onreadystatechange = function(){
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+
 
         
     </script>
@@ -727,6 +812,50 @@
     <input type="submit" value="Get User Profile Info" onclick="get_userProfile();">
 
     <br><br><br>
+
+    send story<br>
+    username
+    <input type="text" name="username" id="username34">
+    <br>
+    image
+    <input type="file" name="image" id="image4">
+    <input type="submit" value="Send Story" onclick="send_story();">
+
+    <br><br><br>
+
+    get stories<br>
+    username
+    <input type="text" name="username" id="username35">
+    <input type="submit" value="Get Stories" onclick="get_stories();">
+
+    <br><br><br>
+
+    get my story<br>
+    username
+    <input type="text" name="username" id="username36">
+    <input type="submit" value="Get My Story" onclick="get_my_stories();">
+    
+    <br><br><br>
+
+    get user story<br>
+    username
+    <input type="text" name="username" id="username37">
+    <br>
+    username 2
+    <input type="text" name="username2" id="username38">
+    <input type="submit" value="Get User Story" onclick="get_user_stories();">
+
+    <br><br><br>
+
+    delete story<br>
+    username
+    <input type="text" name="username" id="username39">
+    <br>
+    story id
+    <input type="text" name="story_id" id="story_id">
+    <input type="submit" value="Delete Story" onclick="delete_story();">
+
+
 
 
 
