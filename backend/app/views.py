@@ -1040,11 +1040,12 @@ def delete_image(image_path):
     else:
         return False
 
-def datemapper(date):
-    if date.day == datetime.datetime.now().day:
+def datemapper(posted_at):
+    posted_at = datetime.datetime.strptime(posted_at, '%Y-%m-%dT%H:%M:%S.%f').strftime('%Y-%m-%d')
+    if posted_at == datetime.datetime.now().strftime('%Y-%m-%d'):
         return "Today"
     else:
-        return date.strftime("%B %d, %Y")
+        return datetime.datetime.strptime(posted_at, '%Y-%m-%d').strftime('%B %d, %Y')
     
     return date
     
