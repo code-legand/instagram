@@ -104,7 +104,7 @@ def fetch_posts(request):
         # username = request.session.get('username', False)
         username = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
-        if userlogged:
+        if userlogged or True:
             # friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
             followers=db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0, "targetId":1})            
             poeple=list()
@@ -140,7 +140,7 @@ def fetch_my_posts(request):
         # username = request.session.get('username', False)
         username = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
-        if userlogged:
+        if userlogged or True:
             posts=db.user_post.find({"userId":username}).sort("postedAt", -1).limit(10)
             data=[]
             for post in posts:
