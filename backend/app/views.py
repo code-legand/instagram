@@ -226,14 +226,16 @@ def recommendations(request):
             excluded_usernames.append(follower['targetId'])
         # recommendations=db.user.find({"username":{'$regex':"^{username}.+".format(username=username)}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
         # recommendations = db.user.find({}, {"_id":0, "username":1, "imagePath":1}).limit(10)
-        names = db.user_post.aggregate(pipeline=[{"$match": {"userId": {"$nin": excluded_usernames}}}, {"$group": {"_id": "$userId", "count": {"$sum": "$likes"}}}, {"$sort": {"count": -1}}, {"$limit": 10}])
+        names = db.user_post.aggregate(pipeline=[{"$match": {"userId": {"$nin": excluded_usernames}}}, {"$group": {"_id": "$userId", "count": {"$sum": "$likes"}}}, {"$sort": {"count": -1}}, {"$limit": 10+len(excluded_usernames)}])
         recommendation_list=[]
         name_list=[]
         for name in names:
+
             name_list.append(name['_id'])
         recommendations=db.user.find({"username":{'$in':name_list}}, {"_id":0, "username":1, "imagePath":1})
         for recommendation in recommendations:
-            recommendation_list.append(recommendation)
+            if recommendation['username'] not in excluded_usernames:
+                recommendation_list.append(recommendation)
         return JsonResponse(recommendation_list, safe=False)
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
