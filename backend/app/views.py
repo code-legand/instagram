@@ -226,12 +226,13 @@ def recommendations(request):
             excluded_usernames.append(follower['targetId'])
         # recommendations=db.user.find({"username":{'$regex':"^{username}.+".format(username=username)}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
         # recommendations = db.user.find({}, {"_id":0, "username":1, "imagePath":1}).limit(10)
-        recommendations = db.user_post.aggregate(pipeline=[{"$match": {"userId": {"$nin": excluded_usernames}}}, {"$group": {"_id": "$userId", "count": {"$sum": "$likes"}}}, {"$sort": {"count": -1}}, {"$limit": 10}])
+        names = db.user_post.aggregate(pipeline=[{"$match": {"userId": {"$nin": excluded_usernames}}}, {"$group": {"_id": "$userId", "count": {"$sum": "$likes"}}}, {"$sort": {"count": -1}}, {"$limit": 10}])
         recommendation_list=[]
-        print(recommendations)
+        name_list=[]
+        for name in names:
+            name_list.append(name['_id'])
+        recommendations=db.user.find({"username":{'$in':name_list}}, {"_id":0, "username":1, "imagePath":1})
         for recommendation in recommendations:
-            if recommendation["_id"] == username:
-                continue
             recommendation_list.append(recommendation)
         return JsonResponse(recommendation_list, safe=False)
     else:
