@@ -1034,7 +1034,15 @@ def fetch_stories(request):
                     story_list.append(story)
                 else:
                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
-            return JsonResponse(story_list, safe=False)
+            valid_users=set()
+            for story in story_list:
+                valid_users.add(story.get('userId'))
+            valid_users = list(valid_users)
+            people = db.user.find({"username":{"$in":valid_users}}, {"_id":0, "username":1, "imagePath":1})
+            people_list=list()
+            for person in people:
+                people_list.append(person)
+            return JsonResponse(people_list, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
             return JsonResponse(data)
