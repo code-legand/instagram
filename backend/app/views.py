@@ -1020,28 +1020,29 @@ def fetch_stories(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            followers = db.user_follow.find({"targetId":username, "status":"accepted"}, {"_id":0, "sourceId":1})
-            followers_list = list()
-            followers_list.append(username)
-            for follower in followers:
-                followers_list.append(follower.get('sourceId'))
-            stories = db.user_story.find({"userId":{"$in":followers_list}, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
-            story_list=list()
+            following_list=[username]
+            following = db.user_follow.find({"sourceId":username, "status":"accepted"}, {"targetId":1})
+            for follow in following:
+                following_list.append(follow.get('targetId'))
+            stories = db.user_story.find({"userId":{"$in":following_list}, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(50)
+            # story_list=list()
+            user_list=list()
             for story in stories:
                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
                 if timegap.days < 1:
-                    story["_id"] = str(story.get('_id'))
-                    story_list.append(story)
+                    # story["_id"] = str(story.get('_id'))
+                    # story_list.append(story)
+                    if story.get('userId') not in user_list:
+                        user_list.append(story.get('userId'))
                 else:
                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
-            valid_users=set()
-            for story in story_list:
-                valid_users.add(story.get('userId'))
-            valid_users = list(valid_users)
-            people = db.user.find({"username":{"$in":valid_users}}, {"_id":0, "username":1, "imagePath":1})
-            people_list=list()
-            for person in people:
-                people_list.append(person)
+            people_list = list()
+            users = db.user.find({"username":{"$in":user_list}}, {"_id":0, "username":1, "imagePath":1})
+            for user in users:
+                people_list.append(user)
+            for person in people_list:
+                person['sort_index'] = user_list.index(person.get('username'))
+            people_list = sorted(people_list, key=lambda k: k['sort_index'])
             return JsonResponse(people_list, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
