@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        
+
         // BASE_URL = "https://instagram-production-220c.up.railway.app/"
         BASE_URL = "http://localhost:8000/"
 
 
-        function sendLoginRequest(){
+        function sendLoginRequest() {
             //send user name and password by post request
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
@@ -19,7 +20,7 @@
             xhr.open("POST", BASE_URL + "login/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&password=" + password);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -28,7 +29,7 @@
             }
         }
 
-        function sendSignupRequest(){
+        function sendSignupRequest() {
             //send email, fullname, user name and password by post request
             var email = document.getElementById("email").value;
             var fullname = document.getElementById("fullname").value;
@@ -38,7 +39,7 @@
             xhr.open("POST", BASE_URL + "signup/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&password=" + password + "&email=" + email + "&fullname=" + fullname);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -47,14 +48,14 @@
             }
         }
 
-        function sendLogoutRequest(){
+        function sendLogoutRequest() {
             //send logout request
             var username = document.getElementById("username3").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "logout/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -63,31 +64,31 @@
             }
         }
 
-        function getPosts(){
+        function getPosts() {
             //get top 10 posts of user, friends and those people user follows
             var username = document.getElementById("username4").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_posts/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
                     response = JSON.parse(response);        //contains 'status' and 'message'
-                    
+
                 }
             }
         }
 
-        function getmyposts(){
+        function getmyposts() {
             //get top 10 posts of user
             var username = document.getElementById("username13").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_my_posts/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -97,7 +98,7 @@
             }
         }
 
-        function sendpost(){
+        function sendpost() {
             //send post
             var username = document.getElementById("username5").value;
             var caption = document.getElementById("caption").value;
@@ -111,27 +112,11 @@
             formData.append("image", document.getElementById("image").files[0]);
             formData.append("username", username);
             formData.append("caption", caption);
-            
+
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "store_post/", true);
             xhr.send(formData);
-            xhr.onreadystatechange = function(){
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    var response = xhr.responseText;
-                    console.log(response);          //response from server
-                    response = JSON.parse(response);        //contains 'status' and 'message'
-                }
-            }
-        }        
-
-        function recommendations(){
-            //get recommendations
-            var username = document.getElementById("username6").value;
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", BASE_URL + "recommendations/", true);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -140,7 +125,23 @@
             }
         }
 
-        function search(){
+        function recommendations() {
+            //get recommendations
+            var username = document.getElementById("username6").value;
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", BASE_URL + "recommendations/", true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send("username=" + username);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = xhr.responseText;
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
+                }
+            }
+        }
+
+        function search() {
             //search
             var username = document.getElementById("username7").value;
             var search = document.getElementById("search").value;
@@ -148,7 +149,7 @@
             xhr.open("POST", BASE_URL + "search/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&search_string=" + search);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -157,7 +158,7 @@
             }
         }
 
-        function getMessages(){
+        function getMessages() {
             //get messages
             var username = document.getElementById("username9").value;
             var username2 = document.getElementById("username10").value;
@@ -165,7 +166,7 @@
             xhr.open("POST", BASE_URL + "fetch_messages/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&targetId=" + username2);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -174,7 +175,7 @@
             }
         }
 
-        function sendMessage(){
+        function sendMessage() {
             //send message
             var username = document.getElementById("username11").value;
             var username2 = document.getElementById("username12").value;
@@ -183,7 +184,7 @@
             xhr.open("POST", BASE_URL + "store_message/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&targetId=" + username2 + "&message=" + message);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -192,7 +193,7 @@
             }
         }
 
-        function get_image(){
+        function get_image() {
             //get image
             var username = document.getElementById("username14").value;
             var image_path = document.getElementById("image_path").value;
@@ -202,14 +203,14 @@
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.overrideMimeType('text/plain; charset=x-user-defined');                 //added line: for binary data
             xhr.send("username=" + username + "&imagePath=" + image_path);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     // // var response = xhr.responseText;
                     var binary = "";
                     var responseText = xhr.responseText;
                     var responseTextLen = responseText.length;
 
-                    for ( i = 0; i < responseTextLen; i++ ) {
+                    for (i = 0; i < responseTextLen; i++) {
                         binary += String.fromCharCode(responseText.charCodeAt(i) & 255);
                     }
                     var image_source = 'data:image/' + image_extension + ';base64,' + btoa(binary);
@@ -219,15 +220,15 @@
                 }
             }
         }
-        
-        function get_profile(){
+
+        function get_profile() {
             //get profile
             var username = document.getElementById("username14").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_profile/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -237,7 +238,7 @@
             }
         }
 
-        function update_profile_pic(){
+        function update_profile_pic() {
             //update profile pic
             var username = document.getElementById("username15").value;
             var formData = new FormData();
@@ -246,7 +247,7 @@
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "update_profile_pic/", true);
             xhr.send(formData);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -255,7 +256,7 @@
             }
         }
 
-        function update_bio(){
+        function update_bio() {
             //update bio
             var username = document.getElementById("username16").value;
             var bio = document.getElementById("bio").value;
@@ -263,7 +264,7 @@
             xhr.open("POST", BASE_URL + "update_bio/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&bio=" + bio);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -272,7 +273,7 @@
             }
         }
 
-        function send_follow_request(){
+        function send_follow_request() {
             //send follow request
             var username = document.getElementById("username17").value;
             var username2 = document.getElementById("username18").value;
@@ -280,7 +281,7 @@
             xhr.open("POST", BASE_URL + "follow_request/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&follow_username=" + username2);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -288,8 +289,8 @@
                 }
             }
         }
-        
-        function accept_follow_request(){
+
+        function accept_follow_request() {
             //accept follow request
             var username = document.getElementById("username19").value;
             var username2 = document.getElementById("username20").value;
@@ -297,7 +298,7 @@
             xhr.open("POST", BASE_URL + "accept_follow_request/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&follow_username=" + username2);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -306,7 +307,7 @@
             }
         }
 
-        function reject_follow_request(){
+        function reject_follow_request() {
             //reject follow request
             var username = document.getElementById("username24").value;
             var username2 = document.getElementById("username25").value;
@@ -314,7 +315,7 @@
             xhr.open("POST", BASE_URL + "reject_follow_request/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&follow_username=" + username2);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -323,14 +324,14 @@
             }
         }
 
-        function get_follow_requests(){
+        function get_follow_requests() {
             //get follow requests
             var username = document.getElementById("username23").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_follow_requests/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -339,14 +340,14 @@
             }
         }
 
-        function get_followers(){
+        function get_followers() {
             //get followers
             var username = document.getElementById("username22").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_followers/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -355,14 +356,14 @@
             }
         }
 
-        function get_following(){
+        function get_following() {
             //get following
             var username = document.getElementById("username22").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_following/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -371,7 +372,7 @@
             }
         }
 
-        function unfollow(){
+        function unfollow() {
             //unfollow
             var username = document.getElementById("username27").value
             var username2 = document.getElementById("username28").value;
@@ -379,7 +380,7 @@
             xhr.open("POST", BASE_URL + "unfollow/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&unfollow_username=" + username2);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -387,15 +388,15 @@
                 }
             }
         }
-        
-        function change_to_private(){
+
+        function change_to_private() {
             //change to private
             var username = document.getElementById("username28").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "change_to_private/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -404,14 +405,14 @@
             }
         }
 
-        function change_to_public(){
+        function change_to_public() {
             //change to public
             var username = document.getElementById("username29").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "change_to_public/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -420,10 +421,10 @@
             }
         }
 
-        
-        
 
-        function likepost(){
+
+
+        function likepost() {
             //like post
             var username = document.getElementById("username30").value;
             var post_id = document.getElementById("post_id").value;
@@ -431,7 +432,7 @@
             xhr.open("POST", BASE_URL + "like_post/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&post_id=" + post_id);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -440,7 +441,7 @@
             }
         }
 
-        function unlikepost(){
+        function unlikepost() {
             //unlike post
             var username = document.getElementById("username31").value;
             var post_id = document.getElementById("post_id").value;
@@ -448,7 +449,7 @@
             xhr.open("POST", BASE_URL + "unlike_post/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&post_id=" + post_id);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -457,7 +458,7 @@
             }
         }
 
-        function get_userProfile(){
+        function get_userProfile() {
             //get user profile
             var username = document.getElementById("username32").value;     //current user
             var username2 = document.getElementById("username33").value;        //user whose profile is to be fetched
@@ -465,7 +466,7 @@
             xhr.open("POST", BASE_URL + "get_user_info/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&username2=" + username2);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -474,7 +475,7 @@
             }
         }
 
-        function send_story(){
+        function send_story() {
             //send story
             var username = document.getElementById("username34").value;
             var formData = new FormData();
@@ -483,7 +484,7 @@
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "store_story/", true);
             xhr.send(formData);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -492,14 +493,14 @@
             }
         }
 
-        function get_stories(){
+        function get_stories() {
             //get stories of user and followers
             var username = document.getElementById("username35").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_stories/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -508,14 +509,14 @@
             }
         }
 
-        function get_my_stories(){
+        function get_my_stories() {
             //get my stories
             var username = document.getElementById("username36").value;
             var xhr = new XMLHttpRequest();
             xhr.open("POST", BASE_URL + "fetch_my_stories/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -524,7 +525,7 @@
             }
         }
 
-        function get_user_stories(){
+        function get_user_stories() {
             //get stories of a particular user
             var username = document.getElementById("username37").value;
             var username2 = document.getElementById("username38").value;
@@ -532,16 +533,56 @@
             xhr.open("POST", BASE_URL + "fetch_user_stories/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&username2=" + username2);
-            xhr.onreadystatechange = function(){
+            var proceed = false;
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
-                    console.log(response);          //response from server
-                    response = JSON.parse(response);        //contains 'status' and 'message'
+                    response = JSON.parse(response);
+                    // console.log(response);          //response from server
+                    get_image2(username, response);
+                    
                 }
             }
         }
 
-        function delete_story(){
+        function get_image2(username, story_response) {
+            var stories = [];
+            var xhr = new XMLHttpRequest();
+            for (story in story_response) {
+                story = story_response[story];
+                var image_path = story["url"]
+                var image_extension = image_path.split('.').pop();
+                xhr.open("POST", BASE_URL + "get_image/", true);  
+                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
+                xhr.send("username=" + username + "&imagePath=" + image_path);
+                xhr.onreadystatechange = function () {
+                    // var ct=0;
+                    // while (xhr.readyState != 4 && xhr.status != 200) {
+                    //     ct++;
+                    //     if(ct>1000){
+                    //         break;
+                    //     }
+                    // }
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        var binary = "";
+                        var responseText = xhr.responseText;
+                        var responseTextLen = responseText.length;
+
+                        for (i = 0; i < responseTextLen; i++) {
+                            binary += String.fromCharCode(responseText.charCodeAt(i) & 255);
+                        }
+                        story["url"] = "data:image/" + image_extension + ";base64," + btoa(binary);
+                        stories.push(story);
+                        xhr.abort();                        
+
+                    }
+                }
+            }
+            console.log(stories);
+        }
+
+        function delete_story() {
             //delete story
             var username = document.getElementById("username39").value;
             var story_id = document.getElementById("story_id").value;
@@ -549,7 +590,7 @@
             xhr.open("POST", BASE_URL + "delete_story/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&story_id=" + story_id);
-            xhr.onreadystatechange = function(){
+            xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
                     console.log(response);          //response from server
@@ -560,10 +601,11 @@
 
 
 
-        
+
     </script>
 
 </head>
+
 <body>
     login <br>
     username
@@ -770,7 +812,7 @@
     <input type="submit" value="Unfollow" onclick="unfollow();">
 
     <br><br><br>
-    
+
     change to private<br>
     username
     <input type="text" name="username" id="username28">
@@ -784,7 +826,7 @@
     <input type="submit" value="Change to Public" onclick="change_to_public();">
 
     <br><br><br>
-    
+
     like post<br>
     username
     <input type="text" name="username" id="username30">
@@ -836,7 +878,7 @@
     username
     <input type="text" name="username" id="username36">
     <input type="submit" value="Get My Story" onclick="get_my_stories();">
-    
+
     <br><br><br>
 
     get user story<br>
@@ -862,4 +904,5 @@
 
 
 </body>
+
 </html>

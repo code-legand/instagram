@@ -9,6 +9,7 @@ import datetime
 import uuid     #for unique image name
 import os
 from django.views.decorators.csrf import csrf_exempt
+import base64
 
 client = pymongo.MongoClient("mongodb+srv://user:user@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority")
 db = client.instagram
@@ -1063,8 +1064,11 @@ def fetch_my_stories(request):
                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
                 if timegap.days < 1:
                     data={}
-                    imageUrl = story.get('imagePath')
-                    data["url"] = imageUrl
+                    imagePath = story.get('imagePath')
+                    image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0}).get('image')
+                    imageUrl = 'data:image/'+story.get('imagePath').split('.')[-1]+';base64,'+base64.b64encode(image).decode('utf-8')
+                    # data["url"] = str(image).replace("b'", "").replace("'", "")
+                    data["url"] = imagePath
                     heading = str(story.get('userId'))
                     subheading = story.get('postedAt')
                     data["header"] = {"heading":heading, "subheading":subheading}
