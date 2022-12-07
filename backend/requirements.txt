@@ -5,3 +5,4 @@ sqlparse==0.4.2
 Django
 pymongo
 django-cors-headers
+cloudinary

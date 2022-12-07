@@ -8,8 +8,8 @@
     <title>Document</title>
     <script>
 
-        // BASE_URL = "https://instagram-production-220c.up.railway.app/"
-        BASE_URL = "http://localhost:8000/"
+        BASE_URL = "https://instagram-production-220c.up.railway.app/"
+        // BASE_URL = "http://localhost:8000/"
 
 
         function sendLoginRequest() {
@@ -525,6 +525,102 @@
             }
         }
 
+
+        // function get_user_stories() {
+        //     //get stories of a particular user
+        //     var username = document.getElementById("username37").value;
+        //     var username2 = document.getElementById("username38").value;
+        //     var xhr = new XMLHttpRequest();
+        //     xhr.open("POST", BASE_URL + "fetch_user_stories/", true);
+        //     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        //     xhr.send("username=" + username + "&username2=" + username2);
+        //     var proceed = false;
+        //     xhr.onreadystatechange = function () {
+        //         if (xhr.readyState == 4 && xhr.status == 200) {
+        //             var response = xhr.responseText;
+        //             response = JSON.parse(response);
+        //             // console.log(response);          //response from server
+        //             get_image2(username, response);
+                    
+        //         }
+        //     }
+        // }
+
+        // function get_image2(username, story_response) {
+        //     var stories = [];
+        //     // var xhr = new XMLHttpRequest();
+        //     for (var story in story_response) {
+        //         story = story_response[story];
+        //         var image_path = story["url"]
+        //         var image_extension = image_path.split('.').pop();
+        //         binary = getBinary(image_path, username, image_extension);
+        //         // story["url"] = "data:image/" + image_extension + ";base64," + btoa(binary);
+        //         story["url"] = binary;
+        //         stories.push(story);
+        //         // xhr.open("POST", BASE_URL + "get_image/", true);  
+        //         // xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        //         // xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
+        //         // xhr.send("username=" + username + "&imagePath=" + image_path);
+        //         // xhr.onreadystatechange = function () {
+        //         //     // var ct=0;
+        //         //     // while (xhr.readyState != 4 && xhr.status != 200) {
+        //         //     //     ct++;
+        //         //     //     if(ct>1000){
+        //         //     //         break;
+        //         //     //     }
+        //         //     // }
+        //         //     if (xhr.readyState == 4 && xhr.status == 200) {
+        //         //         var binary = "";
+        //         //         var responseText = xhr.responseText;
+        //         //         var responseTextLen = responseText.length;
+
+        //         //         for (i = 0; i < responseTextLen; i++) {
+        //         //             binary += String.fromCharCode(responseText.charCodeAt(i) & 255);
+        //         //         }
+        //         //         story["url"] = "data:image/" + image_extension + ";base64," + btoa(binary);
+        //         //         stories.push(story);
+        //         //         xhr.abort();                        
+
+        //         //     }
+        //         // }
+        //     }
+        //     console.log(stories);
+        // }
+
+        // function getBinary(image_path, username, image_extension) {
+        //     var xhr = new XMLHttpRequest();
+        //     xhr.open("POST", BASE_URL + "get_image/", true);
+        //     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        //     xhr.overrideMimeType('text/plain; charset=x-user-defined');                 //added line: for binary data
+        //     xhr.send("username=" + username + "&imagePath=" + image_path);
+        //     var flag=true;
+        //     var release=false;
+        //     while(flag){xhr.onreadystatechange = function () {
+        //         if (xhr.readyState == 4 && xhr.status == 200) {
+        //             // // var response = xhr.responseText;
+        //             var binary = "";
+        //             var responseText = xhr.responseText;
+        //             var responseTextLen = responseText.length;
+
+        //             for (i = 0; i < responseTextLen; i++) {
+        //                 binary += String.fromCharCode(responseText.charCodeAt(i) & 255);
+        //             }
+        //             var image_source = 'data:image/' + image_extension + ';base64,' + btoa(binary);
+        //             release=true;
+        //             document.getElementById("image2").src = image_source;       //for displaying image
+        //             if(image_source){
+        //                 // xhr.abort();
+        //                 flag=false;
+        //                 return image_source;
+        //             }
+                    
+                    
+        //         }
+            
+        //     }
+        // }
+        // }
+
         function get_user_stories() {
             //get stories of a particular user
             var username = document.getElementById("username37").value;
@@ -533,54 +629,16 @@
             xhr.open("POST", BASE_URL + "fetch_user_stories/", true);
             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
             xhr.send("username=" + username + "&username2=" + username2);
-            var proceed = false;
             xhr.onreadystatechange = function () {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     var response = xhr.responseText;
-                    response = JSON.parse(response);
-                    // console.log(response);          //response from server
-                    get_image2(username, response);
-                    
+                    console.log(response);          //response from server
+                    response = JSON.parse(response);        //contains 'status' and 'message'
                 }
             }
         }
 
-        function get_image2(username, story_response) {
-            var stories = [];
-            var xhr = new XMLHttpRequest();
-            for (story in story_response) {
-                story = story_response[story];
-                var image_path = story["url"]
-                var image_extension = image_path.split('.').pop();
-                xhr.open("POST", BASE_URL + "get_image/", true);  
-                xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                xhr.overrideMimeType('text/plain; charset=x-user-defined'); 
-                xhr.send("username=" + username + "&imagePath=" + image_path);
-                xhr.onreadystatechange = function () {
-                    // var ct=0;
-                    // while (xhr.readyState != 4 && xhr.status != 200) {
-                    //     ct++;
-                    //     if(ct>1000){
-                    //         break;
-                    //     }
-                    // }
-                    if (xhr.readyState == 4 && xhr.status == 200) {
-                        var binary = "";
-                        var responseText = xhr.responseText;
-                        var responseTextLen = responseText.length;
 
-                        for (i = 0; i < responseTextLen; i++) {
-                            binary += String.fromCharCode(responseText.charCodeAt(i) & 255);
-                        }
-                        story["url"] = "data:image/" + image_extension + ";base64," + btoa(binary);
-                        stories.push(story);
-                        xhr.abort();                        
-
-                    }
-                }
-            }
-            console.log(stories);
-        }
 
         function delete_story() {
             //delete story

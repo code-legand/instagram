@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse, FileResponse
 from backend import settings
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 import json
 import pymongo
 import dns
@@ -9,7 +12,6 @@ import datetime
 import uuid     #for unique image name
 import os
 from django.views.decorators.csrf import csrf_exempt
-import base64
 
 client = pymongo.MongoClient("mongodb+srv://user:user@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority")
 db = client.instagram
@@ -999,11 +1001,12 @@ def store_story(request):
             data['userId'] = username
             image = request.FILES.get('image')
             data['imagePath'] = new_store_image(image, 'story_images')
+            data['imageUrl'] = new_store_image2(image)
             data['postedAt'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f%z")
             data['isAvailable'] = True
             insert_confirm = db.user_story.insert_one(data)
             if insert_confirm:
-                data = {'status': 'success', 'message': 'Story created successfully', 'imagePath': data['imagePath']}
+                data = {'status': 'success', 'message': 'Story created successfully', 'imagePath': data['imagePath', 'imageUrl': data['imageUrl']]}
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
@@ -1053,25 +1056,52 @@ def fetch_stories(request):
         return JsonResponse(data)
 
 @csrf_exempt
+# def fetch_my_stories(request):
+#     if request.method == 'POST' or request.method == 'GET':
+#         username  = request.POST.get('username')
+#         userlogged = db.user_logged.find_one({"username":username, "status":1})
+#         if userlogged:
+#             stories = db.user_story.find({"userId":username, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+#             story_list=list()
+#             for story in stories:
+#                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
+#                 if timegap.days < 1:
+#                     data={}
+#                     imagePath = story.get('imagePath')
+#                     image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0}).get('image')
+#                     imageUrl = 'data:image/'+story.get('imagePath').split('.')[-1]+';base64,'+base64.b64encode(image).decode('utf-8')
+#                     # data["url"] = str(image).replace("b'", "").replace("'", "")
+#                     data["url"] = imagePath
+#                     heading = str(story.get('userId'))
+#                     subheading = story.get('postedAt')
+#                     data["header"] = {"heading":heading, "subheading":subheading}
+#                     story_list.append(data)
+#                 else:
+#                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
+#             return JsonResponse(story_list, safe=False)
+#         else:
+#             data = {'status': 'error', 'message': 'Not logged in'}
+#             return JsonResponse(data)
+#     else:
+#         data = {'status': 'error', 'message': 'Invalid request'}
+#         return JsonResponse(data)
+
 def fetch_my_stories(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            stories = db.user_story.find({"userId":username, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+            stories = db.user_story.find({"userId":username, "isAvailable":True}, {"imagePath":1, "imageUrl":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
             story_list=list()
             for story in stories:
                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
                 if timegap.days < 1:
                     data={}
-                    imagePath = story.get('imagePath')
-                    image = db.user_image.find_one({"imageName":imagePath}, {"image":1, "_id":0}).get('image')
-                    imageUrl = 'data:image/'+story.get('imagePath').split('.')[-1]+';base64,'+base64.b64encode(image).decode('utf-8')
-                    # data["url"] = str(image).replace("b'", "").replace("'", "")
-                    data["url"] = imagePath
+                    imageUrl = story.get('imageUrl', '#')
                     heading = str(story.get('userId'))
                     subheading = story.get('postedAt')
                     data["header"] = {"heading":heading, "subheading":subheading}
+                    data["url"] = imageUrl
                     story_list.append(data)
                 else:
                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
@@ -1082,21 +1112,51 @@ def fetch_my_stories(request):
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
+                
 
 @csrf_exempt
+# def fetch_user_stories(request):
+#     if request.method == 'POST' or request.method == 'GET':
+#         username  = request.POST.get('username')
+#         userlogged = db.user_logged.find_one({"username":username, "status":1})
+#         if userlogged:
+#             username2 = request.POST.get('username2')
+#             stories = db.user_story.find({"userId":username2, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+#             story_list=list()
+#             for story in stories:
+#                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
+#                 if timegap.days < 1:
+#                     data={}
+#                     imageUrl = story.get('imagePath')
+#                     data["url"] = imageUrl
+#                     heading = str(story.get('userId'))
+#                     subheading = story.get('postedAt')
+#                     data["header"] = {"heading":heading, "subheading":subheading}
+#                     story_list.append(data)
+#                 else:
+#                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
+#             return JsonResponse(story_list, safe=False)
+#         else:
+#             data = {'status': 'error', 'message': 'Not logged in'}
+#             return JsonResponse(data)
+#     else:
+#         data = {'status': 'error', 'message': 'Invalid request'}
+#         return JsonResponse(data)
+
 def fetch_user_stories(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             username2 = request.POST.get('username2')
-            stories = db.user_story.find({"userId":username2, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1}).sort("postedAt", -1).limit(10)
+            username2 = request.POST.get('username2')
+            stories = db.user_story.find({"userId":username2, "isAvailable":True}, {"imagePath":1, "userId":1, "postedAt":1, "imageUrl":1}).sort("postedAt", -1).limit(10)
             story_list=list()
             for story in stories:
                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
                 if timegap.days < 1:
                     data={}
-                    imageUrl = story.get('imagePath')
+                    imageUrl = story.get('imageUrl', '#')
                     data["url"] = imageUrl
                     heading = str(story.get('userId'))
                     subheading = story.get('postedAt')
@@ -1179,7 +1239,7 @@ def new_store_image(image, subfolder):
     image_extention = image_name.split('.')[-1]
     image_name = str(uuid.uuid4()) + '.' + image_extention
     # image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
-    image_path = "media/temp/tempfile.jfif"
+    image_path = "media/temp/tempfile."+image_extention
     with open(image_path, 'wb+') as file:
         for chunk in image.chunks():
             file.write(chunk)
@@ -1187,6 +1247,20 @@ def new_store_image(image, subfolder):
         image = file.read()
     db.user_image.insert_one({"imageName":image_name, "category":subfolder, "image":image})    
     return image_name
+
+def new_store_image2(image):
+    image_name = image.name
+    image_extention = image_name.split('.')[-1]
+    image_name = str(uuid.uuid4()) + '.' + image_extention
+    # image_path = os.path.join(settings.MEDIA_ROOT, subfolder, image_name)
+    image_path = "media/temp/tempfile."+image_extention
+    with open(image_path, 'wb+') as file:
+        for chunk in image.chunks():
+            file.write(chunk)
+    with open(image_path, 'rb') as file:
+        image = file.read()
+    upload_result = cloudinary.uploader.upload(image, folder="user_image")
+    return upload_result['secure_url']
 
 def delete_image(image_path):
     if os.path.exists(image_path):
