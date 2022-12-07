@@ -1062,8 +1062,13 @@ def fetch_my_stories(request):
             for story in stories:
                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
                 if timegap.days < 1:
-                    story["_id"] = str(story.get('_id'))
-                    story_list.append(story)
+                    data={}
+                    imageUrl = story.get('imagePath')
+                    data["url"] = imageUrl
+                    heading = str(story.get('userId'))
+                    subheading = story.get('postedAt')
+                    data["header"] = {"heading":heading, "subheading":subheading}
+                    story_list.append(data)
                 else:
                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
             return JsonResponse(story_list, safe=False)
@@ -1086,8 +1091,13 @@ def fetch_user_stories(request):
             for story in stories:
                 timegap = datetime.datetime.now() - datetime.datetime.strptime(story.get('postedAt'), "%Y-%m-%dT%H:%M:%S.%f")
                 if timegap.days < 1:
-                    story["_id"] = str(story.get('_id'))
-                    story_list.append(story)
+                    data={}
+                    imageUrl = story.get('imagePath')
+                    data["url"] = imageUrl
+                    heading = str(story.get('userId'))
+                    subheading = story.get('postedAt')
+                    data["header"] = {"heading":heading, "subheading":subheading}
+                    story_list.append(data)
                 else:
                     db.user_story.update_one({"imagePath":story.get('imagePath')}, {"$set":{"isAvailable":False}})
             return JsonResponse(story_list, safe=False)
