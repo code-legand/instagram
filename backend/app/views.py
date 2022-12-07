@@ -1006,7 +1006,7 @@ def store_story(request):
             data['isAvailable'] = True
             insert_confirm = db.user_story.insert_one(data)
             if insert_confirm:
-                data = {'status': 'success', 'message': 'Story created successfully', 'imagePath': data['imagePath', 'imageUrl': data['imageUrl']]}
+                data = {'status': 'success', 'message': 'Story created successfully', 'imagePath': data['imagePath'], 'imageUrl': data['imageUrl']}
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
