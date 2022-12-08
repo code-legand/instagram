@@ -229,7 +229,7 @@ def recommendations(request):
             excluded_usernames.append(follower['targetId'])
         # recommendations=db.user.find({"username":{'$regex':"^{username}.+".format(username=username)}}, {"_id":0, "username":1, "imagePath":1}).limit(10)
         # recommendations = db.user.find({}, {"_id":0, "username":1, "imagePath":1}).limit(10)
-        names = db.user_post.aggregate(pipeline=[{"$match": {"userId": {"$nin": excluded_usernames}}}, {"$group": {"_id": "$userId", "count": {"$sum": "$likes"}}}, {"$sort": {"count": -1}}, {"$limit": 10}])
+        names = db.user_post.aggregate(pipeline=[{"$match": {"userId": {"$nin": excluded_usernames}}}, {"$group": {"_id": "$userId", "count": {"$sum": "$likes"}}}, {"$sort": {"count": -1}}, {"$limit": 9}])
         recommendation_list=[]
         name_list=[]
         for name in names:
@@ -757,7 +757,7 @@ def fetch_followers(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            followers = db.user_follow.find({"targetId":username, "status":"accepted"}, {"_id":0})
+            followers = db.user_follow.find({"targetId":username, "status":"accepted"}, {"_id":0}).sort("createdAt", -1)
             data = []
             for follower in followers:
                 data.append(follower)
