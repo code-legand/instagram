@@ -799,7 +799,7 @@ def fetch_follow_requests(request):
                 details = db.user.find_one({"username":follow_request['sourceId']})
                 follow_request['imagePath'] = details.get('imagePath', '')
                 data.append(follow_request)
-            data.sort(key=lambda x: x['createdAt'], reverse=True)
+            # data.sort(key=lambda x: x['createdAt'], reverse=True)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
@@ -816,12 +816,13 @@ def follow_request(request):
         if userlogged:
             follow_username = request.POST.get('follow_username')
             message = request.POST.get('message')
+            createdAt = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
             follow_user_is_public = db.user.find_one({"username":follow_username, "type": "public"})
             if follow_user_is_public:
-                status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"accepted"})
+                status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"accepted", "createdAt":createdAt})
                 data = {'status': 'success', 'message': 'Followed successfully'}
             else:
-                status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending"})
+                status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending", "createdAt":createdAt})
                 data = {'status': 'success', 'message': 'Follow request sent successfully'}
             if status:
                 
