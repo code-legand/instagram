@@ -799,6 +799,7 @@ def fetch_follow_requests(request):
                 details = db.user.find_one({"username":follow_request['sourceId']})
                 follow_request['imagePath'] = details.get('imagePath', '')
                 data.append(follow_request)
+            data.sort(key=lambda x: x['createdAt'], reverse=True)
             return JsonResponse(data, safe=False)
         else:
             data = {'status': 'error', 'message': 'Not logged in'}
