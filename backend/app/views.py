@@ -793,7 +793,7 @@ def fetch_follow_requests(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0}).sort("createdAt", -1)
+            follow_requests = db.user_follow.find({"targetId":username, "status":"pending"}, {"_id":0}).sort("createdAt")
             data = []
             for follow_request in follow_requests:
                 details = db.user.find_one({"username":follow_request['sourceId']})
