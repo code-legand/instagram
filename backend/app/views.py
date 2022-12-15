@@ -1045,6 +1045,7 @@ def fetch_stories(request):
             people_list = list()
             users = db.user.find({"username":{"$in":user_list}}, {"_id":0, "username":1, "imagePath":1})
             for user in users:
+
                 people_list.append(user)
             for person in people_list:
                 person['sort_index'] = user_list.index(person.get('username'))
@@ -1161,7 +1162,8 @@ def fetch_user_stories(request):
                     imageUrl = story.get('imageUrl', '#')
                     data["url"] = imageUrl
                     heading = str(story.get('userId'))
-                    subheading = story.get('postedAt')
+                    # subheading = story.get('postedAt')
+                    subheading = timegap.hours
                     data["header"] = {"heading":heading, "subheading":subheading}
                     story_list.append(data)
                 else:
