@@ -1163,7 +1163,12 @@ def fetch_user_stories(request):
                     data["url"] = imageUrl
                     heading = str(story.get('userId'))
                     # subheading = story.get('postedAt')
-                    subheading = timegap.hours
+                    subheading = timegap.total_seconds()/3600;
+                    if subheading < 1:
+                        subheading = str(int(timegap.total_seconds()/60)) + " mins ago"
+                    else:
+                        subheading = str(int(subheading)) + " hours ago"
+
                     data["header"] = {"heading":heading, "subheading":subheading}
                     story_list.append(data)
                 else:
