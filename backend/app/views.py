@@ -13,7 +13,7 @@ import uuid     #for unique image name
 import os
 from django.views.decorators.csrf import csrf_exempt
 
-client = pymongo.MongoClient("mongodb+srv://user:user@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority".format(USER, PASSWORD))
 db = client.instagram
 
 # Create your views here.

@@ -146,7 +146,7 @@ import cloudinary.uploader
 import cloudinary.api
 
 cloudinary.config( 
-  cloud_name = "dnckvlnt2", 
-  api_key = "162338589695386", 
-  api_secret = "EtH2uW2A69EFW0T3i4LNauXCdpU" 
+  cloud_name = "CLOUD_NAME", 
+  api_key = "API_KEY", 
+  api_secret = "SECRET_KEY" 
 )
