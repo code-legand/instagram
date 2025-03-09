@@ -1,5 +1,6 @@
-sqlparse
-Django
-pymongo
-django-cors-headers
-cloudinary
+sqlparse==0.4.2
+Django==4.0.2
+pymongo==3.12.0
+django-cors-headers==4.0.0
+cloudinary==1.26.0
+dnspython==2.1.0
