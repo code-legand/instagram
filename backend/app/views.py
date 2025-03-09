@@ -13,7 +13,8 @@ import uuid     #for unique image name
 import os
 from django.views.decorators.csrf import csrf_exempt
 
-client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0.ii2taey.mongodb.net/?retryWrites=true&w=majority".format(USER, PASSWORD))
+
+client = pymongo.MongoClient("mongodb+srv://{}:{}@cluster0.ub1i8.mongodb.net/?retryWrites=true&w=majority".format(os.getenv("USER"), os.getenv("PASSWORD")))
 db = client.instagram
 
 # Create your views here.
@@ -69,7 +70,7 @@ def login(request):
         else:
             username = request.POST.get('username')
             password = request.POST.get('password')
-            
+
             check = db.user.find_one({'username': username, 'password': password})
             if check:
                 # request.session['username'] = username
@@ -109,7 +110,7 @@ def fetch_posts(request):
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged or True:
             # friends=db.user_friend.find({"sourceId":username, "type":"close"}, {"_id":0, "targetId":1})
-            followers=db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0, "targetId":1})            
+            followers=db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0, "targetId":1})
             poeple=list()
             # for friend in friends:
             #     poeple.append(friend['targetId'])
@@ -609,7 +610,7 @@ def accept_friend_request(request):
 def reject_friend_request(request):
     if request.method == 'POST' or request.method == 'GET':
         username  = request.POST.get('username')
-        # userlogged = db.user_logged.find_one({"username":username, "status":1})
+        userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
             friend_username = request.POST.get('friend_username')
             status = db.user_friend.update({"sourceId":friend_username, "targetId":username}, {"$set":{"status":"rejected"}})
@@ -683,8 +684,8 @@ def fetch_received_friend_requests(request):
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
 
-    
-    
+
+
 @csrf_exempt
 def normal_to_close_friend(request):
     if request.method == 'POST' or request.method == 'GET':
@@ -775,7 +776,7 @@ def fetch_following(request):
         username  = request.POST.get('username')
         userlogged = db.user_logged.find_one({"username":username, "status":1})
         if userlogged:
-            following = db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0})            
+            following = db.user_follow.find({"sourceId":username, "status":"accepted"}, {"_id":0})
             data = []
             for follow in following:
                 data.append(follow)
@@ -825,7 +826,7 @@ def follow_request(request):
                 status = db.user_follow.insert_one({"sourceId":username, "targetId":follow_username, "message":message, "status":"pending", "createdAt":createdAt})
                 data = {'status': 'success', 'message': 'Follow request sent successfully'}
             if status:
-                
+
                 return JsonResponse(data)
             else:
                 data = {'status': 'error', 'message': 'Something went wrong'}
@@ -1115,7 +1116,7 @@ def fetch_my_stories(request):
     else:
         data = {'status': 'error', 'message': 'Invalid request'}
         return JsonResponse(data)
-                
+
 
 @csrf_exempt
 # def fetch_user_stories(request):
@@ -1254,7 +1255,7 @@ def new_store_image(image, subfolder):
             file.write(chunk)
     with open(image_path, 'rb') as file:
         image = file.read()
-    db.user_image.insert_one({"imageName":image_name, "category":subfolder, "image":image})    
+    db.user_image.insert_one({"imageName":image_name, "category":subfolder, "image":image})
     return image_name
 
 def new_store_image2(image):
@@ -1285,7 +1286,7 @@ def datemapper(posted_at):
     else:
         return datetime.datetime.strptime(posted_at, '%Y-%m-%d').strftime('%B %d, %Y')
     return date
-    
+
 
 
 
