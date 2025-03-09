@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.http import JsonResponse, FileResponse
-from backend import settings
+from api import settings
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
