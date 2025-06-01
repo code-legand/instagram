@@ -115,10 +115,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS settings
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:8000',
-    'https://instagram-backend-lilac.vercel.app/*'
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 # storing story images in cloudinary
 import cloudinary
