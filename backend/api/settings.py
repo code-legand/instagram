@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'app.apps.AppConfig',
     'corsheaders',
 ]
@@ -110,31 +109,16 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
-STATIC_URL = 'static/'
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# add this line
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
+# CORS settings
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:8000',
+    'https://instagram-backend-lilac.vercel.app'
 ]
-
-MEDIA_ROOT = BASE_DIR / "media"
-
-
-CORS_ORIGIN_ALLOW_ALL = True
-
-## or set above as False and uncomment below
-# CORS_ORIGIN_WHITELIST = [
-#     'http://localhost:5000',
-# ]
 
 # storing story images in cloudinary
 import cloudinary
